@@ -20,13 +20,49 @@ INCLUDE irvine32.inc
 	;     3: Covered, Question Mark
 	coverState db 400 DUP(1)
 
+	; === Constants ============================================================
+	welcomeMenuLayout db "                  _____ _", 0dh, 0ah, \
+						 "                 |     |_|___ ___ ___ _ _ _ ___ ___ ___ ___ ___", 0dh, 0ah, \
+						 "                 | | | | |   | -_|_ -| | | | -_| -_| . | -_|  _|", 0dh, 0ah, \
+						 "                 |_|_|_|_|_|_|___|___|_____|___|___|  _|___|_|", 0dh, 0ah, \
+						 "                                                   |_|", 0dh, 0ah, 0
+
+	creditsMessage db "               By. Andrew Simmons, Brendan Sileo, and Ethan Smith", 0dh, 0ah, 0
+
 .code
 main proc
-
 	; Code Here
 	exit
 
 main endp
+
+
+welcomeMenu proc
+	call ClrScr
+
+	call CRLF
+	call CRLF
+	call CRLF
+	call CRLF
+
+	mov edx, offset welcomeMenuLayout
+	call WriteString
+
+	call CRLF
+	call CRLF
+	call CRLF
+	call CRLF
+
+	mov edx, offset creditsMessage
+	call WriteString
+
+	mov eax, 5000
+	call Delay
+
+	call ClrScr
+
+	ret
+welcomeMenu endp
 
 ; Inputs:
 ;     eax: Y Coordinate
