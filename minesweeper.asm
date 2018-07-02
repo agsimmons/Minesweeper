@@ -6,7 +6,7 @@ INCLUDE irvine32.inc
 	boardWidth dd 1 DUP(?)
 
 	;Text messages
-	widthRequest db "Choose your board width. It can be any number between 1 and 20.",0
+	widthRequest db "Choose your board size: (1) Small, (2) Medium, or (3) Large:",0
 
 	; Base state array
 	; Possible values:
@@ -30,7 +30,6 @@ main proc
 
 main endp
 
-<<<<<<< HEAD
 ;Inputs:
 ;	None
 ;Outputs:
@@ -54,14 +53,6 @@ inputBoardWidth endp
 ;	boardWidth: Width of Game Board
 ;Outputs:
 ;	eax: Array index
-=======
-; Inputs:
-;     eax: Y Coordinate
-;     ebx: X Coordinate
-;     boardWidth: Width of Game Board
-; Outputs:
-;     eax: Array index
->>>>>>> 4e9374da237d9bc693c0c1556fd605891a4fd7b9
 xyToIndex proc
 	mul boardWidth
 	add eax, ebx
