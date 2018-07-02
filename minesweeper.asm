@@ -41,6 +41,10 @@ main proc
 
 main endp
 
+; Inputs:
+;     None
+; Outputs:
+;     None
 welcomeMenu proc
 	call ClrScr
 
