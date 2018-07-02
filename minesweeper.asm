@@ -13,12 +13,12 @@ main proc
 
 main endp
 
-;Inputs:
-;	eax: Y Coordinate
-;	ebx: X Coordinate
-;	boardWidth: Width of Game Board
-;Outputs:
-;	eax: Array index
+; Inputs:
+;     eax: Y Coordinate
+;     ebx: X Coordinate
+;     boardWidth: Width of Game Board
+; Outputs:
+;     eax: Array index
 xyToIndex proc
 	mul boardWidth
 	add eax, ebx
