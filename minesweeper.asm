@@ -4,6 +4,11 @@ INCLUDE irvine32.inc
 
 	; Width of game board
 	boardWidth dd 1 DUP(?)
+	numMines db ?
+
+	;Text messages
+	widthRequest db "Choose your board size: (1) Small, (2) Medium, or (3) Large:",0
+	sizeInputError db "Please input 1, 2 or 3.", 0
 
 	; Base state array
 	; Possible values:
@@ -36,7 +41,6 @@ main proc
 
 main endp
 
-
 welcomeMenu proc
 	call ClrScr
 
@@ -64,12 +68,55 @@ welcomeMenu proc
 	ret
 welcomeMenu endp
 
-; Inputs:
-;     eax: Y Coordinate
-;     ebx: X Coordinate
-;     boardWidth: Width of Game Board
-; Outputs:
-;     eax: Array index
+;Inputs:
+;	None
+;Outputs:
+;	boardWidth: Width of the Game Board
+inputBoardWidth proc
+	push eax
+	push edx
+getInput:
+	mov edx, offset widthRequest
+	call WriteString
+	call Crlf
+	call ReadInt
+
+	cmp eax, 1
+	JE small
+	cmp eax, 2
+	JE medium
+	cmp eax, 3
+	JE large
+	jmp error
+done:
+	pop edx
+	pop eax
+	ret
+small:
+	mov boardWidth, 10
+	mov numMines, 10
+	jmp done
+medium:
+	mov boardWidth, 15
+	mov numMines, 23
+	jmp done
+large:
+	mov boardWidth, 20
+	mov numMines, 40
+	jmp done
+error:
+	mov edx, offset sizeInputError
+	call WriteString
+	call Crlf
+	jmp getInput
+inputBoardWidth endp
+
+;Inputs:
+;	eax: Y Coordinate
+;	ebx: X Coordinate
+;	boardWidth: Width of Game Board
+;Outputs:
+;	eax: Array index
 xyToIndex proc
 	mul boardWidth
 	add eax, ebx
