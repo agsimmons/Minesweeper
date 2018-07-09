@@ -38,6 +38,9 @@ INCLUDE irvine32.inc
 
 .code
 main proc
+
+	call Randomize
+
 	; Code Here
 	exit
 
@@ -54,8 +57,6 @@ populateMines proc
 	push ebx
 	push ecx
 	push edx
-
-	call randomize
 
 	mov edi, offset baseState
 
