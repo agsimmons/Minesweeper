@@ -15,7 +15,7 @@ INCLUDE irvine32.inc
 	;     0: Empty
 	;     1-8: # of adjacent mines
 	;     9: Mines
-	baseState db 400 DUP(?)
+	baseState db 400 DUP(0)
 
 	; Cover state array
 	; Possible values:
@@ -34,12 +34,110 @@ INCLUDE irvine32.inc
 
 	creditsMessage db "               By. Andrew Simmons, Brendan Sileo, and Ethan Smith", 0dh, 0ah, 0
 
+	space db " "
+
 .code
 main proc
 	; Code Here
 	exit
 
 main endp
+
+; Inputs:
+;	boardWidth
+;	baseState
+;	numMines
+; Outputs:
+;	baseState
+populateMines proc
+	push eax
+	push ebx
+	push ecx
+	push edx
+
+	call randomize
+
+	mov edi, offset baseState
+
+	mov eax, boardWidth	;store total number of spaces into eax
+	mov ebx, boardWidth	;
+	mul ebx			;
+
+	mov edx, 9
+
+	mov ecx, 0
+	mov cl, numMines	;place 9 into random squares, ecx times
+place:	push eax		;
+	push edi
+
+	call randomrange
+	add edi, eax
+	mov [edi], edx
+
+	pop edi
+	pop eax
+	loop place
+
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	ret
+populateMines endp
+
+; Inputs:
+;	coverState
+;	baseState
+;	boardWidth
+;	space
+; Outputs:
+;	none
+printBoardDebug proc
+	push eax
+	push ebx
+	push ecx
+	push edx
+
+	mov esi, offset coverState
+	mov edi, offset baseState
+
+	mov eax, boardWidth	;set loop counter to boardWidth^2
+	mov ebx, boardWidth	;
+	mul ebx			;
+	mov ecx, eax		;move count to ecx
+
+	mov eax, 0
+	mov edx, offset space
+nl:
+	cmp ecx, 0		;print newline & end proc when ecx 0
+	jle done		;
+	call crlf		;
+	mov ebx, boardWidth	;
+print:
+	mov al, [esi]		;print coverState
+	call WriteDec		;
+	mov al, [edi]		;print baseState
+	call WriteDec		;
+	mov al, 32
+	call WriteChar		;print space
+	inc esi			;
+	inc edi			;
+	dec ebx			;
+	dec ecx			;
+
+	cmp ebx, 0
+	jle nl
+
+	cmp ecx, 0
+	jge print
+done:
+	call crlf
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	ret
+printBoardDebug endp
 
 ; Inputs:
 ;     None
