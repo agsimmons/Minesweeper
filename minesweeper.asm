@@ -103,8 +103,7 @@ printBoardDebug proc
 	mov edi, offset baseState
 
 	mov eax, boardWidth	;set loop counter to boardWidth^2
-	mov ebx, boardWidth	;
-	mul ebx			;
+	mul eax
 	mov ecx, eax		;move count to ecx
 
 	mov eax, 0
