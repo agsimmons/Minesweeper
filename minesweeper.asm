@@ -3,7 +3,7 @@ INCLUDE irvine32.inc
 .data
 
 	; Width of game board
-	boardWidth dd 1 DUP(?)
+	boardWidth dd ?
 	numMines db ?
 
 	;Text messages
