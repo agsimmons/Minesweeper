@@ -15,11 +15,11 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 	numEventsRead DWORD ?
 	numEventsOccurred DWORD ?
 	eventBuffer INPUT_RECORD 128 DUP(<>)
-	coordString BYTE "Coordinate change: (", 0
+	coordString BYTE "(", 0
 	buttonString BYTE "Left Button Pressed!", 0Ah, 0
-	
+
 	; Width of game board
-	boardWidth dd 1 DUP(?)
+	boardWidth dd ?
 	numMines db ?
 
 	;Text messages
@@ -49,25 +49,16 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 	                     "                                                   |_|", 0dh, 0ah, 0
 
 	creditsMessage db "               By. Andrew Simmons, Brendan Sileo, and Ethan Smith", 0dh, 0ah, 0
-	
+
 	space db " "
+
 .code
 main proc
-	; Code Here
 
-	call welcomeMenu
-	call inputBoardWidth
-	call printBoardDebug
-	call populateBoard
-	call printBoardDebug
-	labell:
-	call mouseLoc
-	push eax
-	mov eax, 500
-	call Delay
-	pop eax
-	jmp labell
-	;exit
+	call Randomize
+
+	invoke ExitProcess, 0
+
 
 main endp
 
@@ -111,19 +102,18 @@ mouseLoc PROC
 	invoke ExitProcess, 0
 	ret
 mouseLoc ENDP
+
 ; Inputs:
 ;	boardWidth
 ;	baseState
 ;	numMines
 ; Outputs:
 ;	baseState
-populateBoard proc
+populateMines proc
 	push eax
 	push ebx
 	push ecx
 	push edx
-
-	call Randomize
 
 	mov edi, offset baseState
 
@@ -139,7 +129,6 @@ place:	push eax		;
 	push edi
 
 	call RandomRange
-	call WriteDec
 	add edi, eax
 	mov [edi], edx
 
@@ -147,14 +136,12 @@ place:	push eax		;
 	pop eax
 	loop place
 
-
-
 	pop edx
 	pop ecx
 	pop ebx
 	pop eax
 	ret
-populateBoard endp
+populateMines endp
 
 ; Inputs:
 ;	coverState
@@ -171,20 +158,19 @@ printBoardDebug proc
 
 	mov esi, offset coverState
 	mov edi, offset baseState
-	
+
 	mov eax, boardWidth	;set loop counter to boardWidth^2
-	mov ebx, boardWidth	;
-	mul ebx			;
+	mul eax
 	mov ecx, eax		;move count to ecx
 
 	mov eax, 0
 	mov edx, offset space
-nl:	
+nl:
 	cmp ecx, 0		;print newline & end proc when ecx 0
 	jle done		;
 	call Crlf		;
 	mov ebx, boardWidth	;
-print:	
+print:
 	mov al, [esi]		;print coverState
 	call WriteDec		;
 	mov al, [edi]		;print baseState
@@ -209,8 +195,6 @@ done:
 	pop eax
 	ret
 printBoardDebug endp
-
-
 
 ; Inputs:
 ;     None
