@@ -16,7 +16,11 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 	numEventsOccurred DWORD ?
 	eventBuffer INPUT_RECORD 128 DUP(<>)
 	coordString BYTE "(", 0
-	buttonString BYTE "Left Button Pressed!", 0Ah, 0
+	xLoc db ?
+	yLoc db ?
+	
+	xCoord db ?
+	yCoord db ?
 
 	; Width of game board
 	boardWidth dd ?
@@ -56,11 +60,36 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 main proc
 
 	call Randomize
-
+	call welcomeMenu
+	call inputBoardWidth
+	call populateMines
+	call printBoardDebug
+	call populateAdjacencies
+	call printBoardDebug
 	invoke ExitProcess, 0
 
 
 main endp
+
+	
+coordToGrid PROC
+	call Crlf
+	mov dx,0
+	mov eax,0
+	mov al,xLoc
+	mov cx,2
+	div cx
+	mov xCoord, al
+	call WriteInt
+	
+	mov eax, 0
+	mov al, yLoc
+	sub al, 1
+	mov yCoord, al
+	call WriteInt
+	ret
+coordToGrid ENDP
+
 
 mouseLoc PROC
 	invoke GetStdHandle, STD_INPUT_HANDLE
@@ -76,30 +105,19 @@ mouseLoc PROC
 	loopOverEvents:
 	cmp (INPUT_RECORD PTR [esi]).EventType, MOUSE_EVENT
 	jne notMouse
-	;cmp (INPUT_RECORD PTR [esi]).MouseEvent.dwEventFlags, MOUSE_MOVED
-	;jne continue
-	mov edx, OFFSET coordString
-	call WriteString
-	movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.x
-	call WriteInt
-	mov al, ','
-	call WriteChar
-	movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.y
-	call WriteInt
-	mov al, ')'
-	call WriteChar
-	call Crlf
-	continue:
-	test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, 	FROM_LEFT_1ST_BUTTON_PRESSED
+	test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, FROM_LEFT_1ST_BUTTON_PRESSED
 	jz notMouse
-	mov edx, OFFSET buttonString
-	call WriteString
+	movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.x
+	mov xLoc, al
+	movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.y
+	mov yLoc, al
+	jmp clicked
 	notMouse:
 	add esi, TYPE INPUT_RECORD
-		loop loopOverEvents
+	loop loopOverEvents
 	jmp appContinue
-	done:
-	invoke ExitProcess, 0
+	clicked:
+	call coordToGrid
 	ret
 mouseLoc ENDP
 
