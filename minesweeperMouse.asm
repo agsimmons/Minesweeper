@@ -18,7 +18,7 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 	coordString BYTE "(", 0
 	xLoc db ?
 	yLoc db ?
-	
+
 	xCoord db ?
 	yCoord db ?
 
@@ -70,10 +70,8 @@ main proc
 	call printBoardDebug
 	invoke ExitProcess, 0
 
-
 main endp
 
-	
 coordToGrid PROC
 	call Crlf
 	mov dx,0
@@ -83,7 +81,7 @@ coordToGrid PROC
 	div cx
 	mov xCoord, al
 	call WriteInt
-	
+
 	mov eax, 0
 	mov al, yLoc
 	sub al, 1
@@ -98,28 +96,28 @@ mouseLoc PROC
 	mov rHnd, eax
 	invoke SetConsoleMode, rHnd, ENABLE_LINE_INPUT OR ENABLE_MOUSE_INPUT OR ENABLE_EXTENDED_FLAGS
 	appContinue:
-	invoke GetNumberOfConsoleInputEvents, rHnd, OFFSET numEventsOccurred
-	cmp numEventsOccurred, 0
-	je appContinue
-	invoke ReadConsoleInput, rHnd, OFFSET eventBuffer, numEventsOccurred, 	OFFSET numEventsRead
-	mov ecx, numEventsRead
-	mov esi, OFFSET eventBuffer
+		invoke GetNumberOfConsoleInputEvents, rHnd, OFFSET numEventsOccurred
+		cmp numEventsOccurred, 0
+		je appContinue
+		invoke ReadConsoleInput, rHnd, OFFSET eventBuffer, numEventsOccurred, 	OFFSET numEventsRead
+		mov ecx, numEventsRead
+		mov esi, OFFSET eventBuffer
 	loopOverEvents:
-	cmp (INPUT_RECORD PTR [esi]).EventType, MOUSE_EVENT
-	jne notMouse
-	test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, FROM_LEFT_1ST_BUTTON_PRESSED
-	jz notMouse
-	movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.x
-	mov xLoc, al
-	movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.y
-	mov yLoc, al
-	jmp clicked
+		cmp (INPUT_RECORD PTR [esi]).EventType, MOUSE_EVENT
+		jne notMouse
+		test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, FROM_LEFT_1ST_BUTTON_PRESSED
+		jz notMouse
+		movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.x
+		mov xLoc, al
+		movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.y
+		mov yLoc, al
+		jmp clicked
 	notMouse:
-	add esi, TYPE INPUT_RECORD
-	loop loopOverEvents
-	jmp appContinue
+		add esi, TYPE INPUT_RECORD
+		loop loopOverEvents
+		jmp appContinue
 	clicked:
-	call coordToGrid
+		call coordToGrid
 	ret
 mouseLoc ENDP
 
@@ -145,16 +143,17 @@ populateMines proc
 
 	mov ecx, 0
 	mov cl, numMines	;place 9 into random squares, ecx times
-place:	push eax		;
-	push edi
+	place:
+		push eax		;
+		push edi
 
-	call RandomRange
-	add edi, eax
-	mov [edi], edx
+		call RandomRange
+		add edi, eax
+		mov [edi], edx
 
-	pop edi
-	pop eax
-	loop place
+		pop edi
+		pop eax
+		loop place
 
 	pop edx
 	pop ecx
@@ -511,34 +510,34 @@ printBoardDebug proc
 
 	mov eax, 0
 	mov edx, offset space
-nl:
-	cmp ecx, 0		;print newline & end proc when ecx 0
-	jle done		;
-	call Crlf		;
-	mov ebx, boardWidth	;
-print:
-	mov al, [esi]		;print coverState
-	call WriteDec		;
-	mov al, [edi]		;print baseState
-	call WriteDec		;
-	mov al, 32
-	call WriteChar		;print space
-	inc esi			;
-	inc edi			;
-	dec ebx			;
-	dec ecx			;
+	nl:
+		cmp ecx, 0		;print newline & end proc when ecx 0
+		jle done		;
+		call Crlf		;
+		mov ebx, boardWidth	;
+	print:
+		mov al, [esi]		;print coverState
+		call WriteDec		;
+		mov al, [edi]		;print baseState
+		call WriteDec		;
+		mov al, 32
+		call WriteChar		;print space
+		inc esi			;
+		inc edi			;
+		dec ebx			;
+		dec ecx			;
 
-	cmp ebx, 0
-	jle nl
+		cmp ebx, 0
+		jle nl
 
-	cmp ecx, 0
-	jge print
-done:
-	call Crlf
-	pop edx
-	pop ecx
-	pop ebx
-	pop eax
+		cmp ecx, 0
+		jge print
+	done:
+		call Crlf
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
 	ret
 printBoardDebug endp
 
@@ -580,40 +579,40 @@ welcomeMenu endp
 inputBoardWidth proc
 	push eax
 	push edx
-getInput:
-	mov edx, offset widthRequest
-	call WriteString
-	call Crlf
-	call ReadInt
+	getInput:
+		mov edx, offset widthRequest
+		call WriteString
+		call Crlf
+		call ReadInt
 
-	cmp eax, 1
-	JE small
-	cmp eax, 2
-	JE medium
-	cmp eax, 3
-	JE large
-	jmp error
-done:
-	pop edx
-	pop eax
-	ret
-small:
-	mov boardWidth, 10
-	mov numMines, 10
-	jmp done
-medium:
-	mov boardWidth, 15
-	mov numMines, 23
-	jmp done
-large:
-	mov boardWidth, 20
-	mov numMines, 40
-	jmp done
-error:
-	mov edx, offset sizeInputError
-	call WriteString
-	call Crlf
-	jmp getInput
+		cmp eax, 1
+		JE small
+		cmp eax, 2
+		JE medium
+		cmp eax, 3
+		JE large
+		jmp error
+	done:
+		pop edx
+		pop eax
+		ret
+	small:
+		mov boardWidth, 10
+		mov numMines, 10
+		jmp done
+	medium:
+		mov boardWidth, 15
+		mov numMines, 23
+		jmp done
+	large:
+		mov boardWidth, 20
+		mov numMines, 40
+		jmp done
+	error:
+		mov edx, offset sizeInputError
+		call WriteString
+		call Crlf
+		jmp getInput
 inputBoardWidth endp
 
 ;Inputs:
