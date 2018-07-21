@@ -24,6 +24,8 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 
 	; Width of game board
 	boardWidth dd ?
+
+	; Number of mines on game board
 	numMines db ?
 
 	;Text messages
@@ -34,7 +36,7 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 	; Possible values:
 	;     0: Empty
 	;     1-8: # of adjacent mines
-	;     9: Mines
+	;     9: Mine
 	baseState db 400 DUP(0)
 
 	; Cover state array
