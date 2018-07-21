@@ -47,6 +47,13 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 	;     3: Covered, Question Mark
 	coverState db 400 DUP(1)
 
+	; Mine location array
+	; Possible values:
+	;	0 to boardWidth^2
+	; Length:
+	;	numMines
+	mineLocations dd 41 DUP(0)
+
 	; === Constants ============================================================
 	welcomeMenuLayout db "                  _____ _", 0dh, 0ah, \
 	                     "                 |     |_|___ ___ ___ _ _ _ ___ ___ ___ ___ ___", 0dh, 0ah, \
@@ -64,7 +71,8 @@ main proc
 	call Randomize
 	call welcomeMenu
 	call inputBoardWidth
-	call populateMines
+	call generateMines
+	call placeMines
 	call printBoardDebug
 	call populateAdjacencies
 	call printBoardDebug
@@ -122,44 +130,63 @@ mouseLoc ENDP
 
 ; Inputs:
 ;	boardWidth
+;	numMines
+;	mineLocations
+; Outputs:
+;	mineLocations
+generateMines proc
+	push eax
+	push ecx
+	push edx
+
+	mov eax, boardWidth
+	mul eax
+	mov ecx, 0
+	mov cl, numMines
+	mov edi, offset mineLocations
+
+	gen:
+	push eax
+	call RandomRange
+	mov [edi], eax
+	add edi, 4
+	pop eax
+	loop gen
+
+	pop edx
+	pop ecx
+	pop eax
+	ret
+generateMines endp
+
+; Inputs:
+;	mineLocations
 ;	baseState
 ;	numMines
 ; Outputs:
 ;	baseState
-populateMines proc
-	push eax
-	push ebx
+placeMines proc
 	push ecx
 	push edx
 
+	mov esi, offset mineLocations
 	mov edi, offset baseState
-
-	mov eax, boardWidth	;store total number of spaces into eax
-	mov ebx, boardWidth	;
-	mul ebx			;
-
-	mov edx, 9
-
+	mov edx, 9d
 	mov ecx, 0
-	mov cl, numMines	;place 9 into random squares, ecx times
+	mov cl, numMines
+
 	place:
-		push eax		;
-		push edi
-
-		call RandomRange
-		add edi, eax
-		mov [edi], edx
-
-		pop edi
-		pop eax
-		loop place
+	push edi
+	add edi, [esi]
+	mov [edi], dl
+	add esi, 4
+	pop edi
+	loop place
 
 	pop edx
 	pop ecx
-	pop ebx
-	pop eax
 	ret
-populateMines endp
+placeMines endp
 
 ; Inputs:
 ;     baseState
