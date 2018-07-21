@@ -146,12 +146,12 @@ generateMines proc
 	mov edi, offset mineLocations
 
 	gen:
-	push eax
-	call RandomRange
-	mov [edi], eax
-	add edi, 4
-	pop eax
-	loop gen
+		push eax
+		call RandomRange
+		mov [edi], eax
+		add edi, 4
+		pop eax
+		loop gen
 
 	pop edx
 	pop ecx
@@ -176,12 +176,12 @@ placeMines proc
 	mov cl, numMines
 
 	place:
-	push edi
-	add edi, [esi]
-	mov [edi], dl
-	add esi, 4
-	pop edi
-	loop place
+		push edi
+		add edi, [esi]
+		mov [edi], dl
+		add esi, 4
+		pop edi
+		loop place
 
 	pop edx
 	pop ecx
