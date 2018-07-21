@@ -90,7 +90,6 @@ coordToGrid PROC
 	ret
 coordToGrid ENDP
 
-
 mouseLoc PROC
 	invoke GetStdHandle, STD_INPUT_HANDLE
 	mov rHnd, eax
