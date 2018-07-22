@@ -572,6 +572,9 @@ printBoardDebug endp
 ; Outputs:
 ;     None
 welcomeMenu proc
+	push eax
+	push edx
+
 	call Clrscr
 
 	call Crlf
@@ -594,6 +597,9 @@ welcomeMenu proc
 	call Delay
 
 	call Clrscr
+
+	pop edx
+	pop eax
 
 	ret
 welcomeMenu endp
