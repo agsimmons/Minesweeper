@@ -217,283 +217,44 @@ populateAdjacencies proc
 			jne skip ; If not, skip this tile
 
 			; If it is a mine
-			; Try top left
-			topLeftCheck:
-				; Store loop counters
-				push ecx
-				push ebx
+			; Top-Left Check
+			sub ebx, 1
+			sub ecx, 1
+			call checkAdjacency
 
-				dec ebx
-				dec ecx ; Change cooardinates to (x-1, y-1) relative to mine position
+			; Top Check
+			add ebx, 1
+			call checkAdjacency
 
-				cmp ebx, 0 ; If x < 0
-				jl topCheck ; Skip topCheck
-				cmp ebx, boardWidth ; If x >= boardWidth
-				jge topCheck ; Skip topCheck
-				cmp ecx, 0 ; If y < 0
-				jl topCheck ; Skip to topCheck
-				cmp ecx, boardWidth ; If y >= boardWidth
-				jge topCheck ; Skip to topCheck
+			; Top Right Check
+			add ebx, 1
+			call checkAdjacency
 
+			; Left Check
+			add ecx, 1
+			sub ebx, 2
+			call checkAdjacency
 
-				; If it is a valid coordinate
-				mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
-				call xyToIndex ; Convert x,y to index
-				mov edi, offset baseState ; Get offset of baseState in edi
-				add edi, eax ; Move offset to specified element
+			; Right Check
+			add ebx, 2
+			call checkAdjacency
 
-				mov eax, 9
-				cmp [edi], al ; If value at index is a mine
-				je topCheck ; Skip this tile
+			; Bottom Left Check
+			add ecx, 1
+			sub ebx, 2
+			call checkAdjacency
 
-				mov eax, 1
-				add [edi], al ; Increment by one
+			; Bottom Check
+			add ebx, 1
+			call checkAdjacency
 
-			topCheck:
-				; Restore loop counters from previous check
-				pop ebx
-				pop ecx
+			; Bottom Right Check
+			add ebx, 1
+			call checkAdjacency
 
-				; Store loop counters
-				push ecx
-				push ebx
-
-				dec ecx ; Change cooardinates to (x, y-1) relative to mine position
-
-				cmp ebx, 0 ; If x < 0
-				jl topRightCheck ; Skip topRightCheck
-				cmp ebx, boardWidth ; If x >= boardWidth
-				jge topRightCheck ; Skip topRightCheck
-				cmp ecx, 0 ; If y < 0
-				jl topRightCheck ; Skip to topRightCheck
-				cmp ecx, boardWidth ; If y >= boardWidth
-				jge topRightCheck ; Skip to topRightCheck
-
-
-				; If it is a valid coordinate
-				mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
-				call xyToIndex ; Convert x,y to index
-				mov edi, offset baseState ; Get offset of baseState in edi
-				add edi, eax ; Move offset to specified element
-
-				mov eax, 9
-				cmp [edi], al ; If value at index is a mine
-				je topRightCheck ; Skip this tile
-
-				mov eax, 1
-				add [edi], al ; Increment by one
-
-			topRightCheck:
-				; Restore loop counters from previous check
-				pop ebx
-				pop ecx
-
-				; Store loop counters
-				push ecx
-				push ebx
-
-				inc ebx
-				dec ecx ; Change cooardinates to (x+1, y-1) relative to mine position
-
-				cmp ebx, 0 ; If x < 0
-				jl leftCheck ; Skip leftCheck
-				cmp ebx, boardWidth ; If x >= boardWidth
-				jge leftCheck ; Skip leftCheck
-				cmp ecx, 0 ; If y < 0
-				jl leftCheck ; Skip to leftCheck
-				cmp ecx, boardWidth ; If y >= boardWidth
-				jge leftCheck ; Skip to leftCheck
-
-
-				; If it is a valid coordinate
-				mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
-				call xyToIndex ; Convert x,y to index
-				mov edi, offset baseState ; Get offset of baseState in edi
-				add edi, eax ; Move offset to specified element
-
-				mov eax, 9
-				cmp [edi], al ; If value at index is a mine
-				je leftCheck ; Skip this tile
-
-				mov eax, 1
-				add [edi], al ; Increment by one
-
-			leftCheck:
-				; Restore loop counters from previous check
-				pop ebx
-				pop ecx
-
-				; Store loop counters
-				push ecx
-				push ebx
-
-				dec ebx; Change cooardinates to (x-1, y) relative to mine position
-
-				cmp ebx, 0 ; If x < 0
-				jl rightCheck ; Skip rightCheck
-				cmp ebx, boardWidth ; If x >= boardWidth
-				jge rightCheck ; Skip rightCheck
-				cmp ecx, 0 ; If y < 0
-				jl rightCheck ; Skip to rightCheck
-				cmp ecx, boardWidth ; If y >= boardWidth
-				jge rightCheck ; Skip to rightCheck
-
-
-				; If it is a valid coordinate
-				mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
-				call xyToIndex ; Convert x,y to index
-				mov edi, offset baseState ; Get offset of baseState in edi
-				add edi, eax ; Move offset to specified element
-
-				mov eax, 9
-				cmp [edi], al ; If value at index is a mine
-				je rightCheck ; Skip this tile
-
-				mov eax, 1
-				add [edi], al ; Increment by one
-
-			rightCheck:
-				; Restore loop counters from previous check
-				pop ebx
-				pop ecx
-
-				; Store loop counters
-				push ecx
-				push ebx
-
-				inc ebx ; Change cooardinates to (x+1, y) relative to mine position
-
-				cmp ebx, 0 ; If x < 0
-				jl bottomLeftCheck ; Skip bottomLeftCheck
-				cmp ebx, boardWidth ; If x >= boardWidth
-				jge bottomLeftCheck ; Skip bottomLeftCheck
-				cmp ecx, 0 ; If y < 0
-				jl bottomLeftCheck ; Skip to bottomLeftCheck
-				cmp ecx, boardWidth ; If y >= boardWidth
-				jge bottomLeftCheck ; Skip to bottomLeftCheck
-
-
-				; If it is a valid coordinate
-				mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
-				call xyToIndex ; Convert x,y to index
-				mov edi, offset baseState ; Get offset of baseState in edi
-				add edi, eax ; Move offset to specified element
-
-				mov eax, 9
-				cmp [edi], al ; If value at index is a mine
-				je bottomLeftCheck ; Skip this tile
-
-				mov eax, 1
-				add [edi], al ; Increment by one
-
-			bottomLeftCheck:
-				; Restore loop counters from previous check
-				pop ebx
-				pop ecx
-
-				; Store loop counters
-				push ecx
-				push ebx
-
-				dec ebx
-				inc ecx ; Change cooardinates to (x-1, y+1) relative to mine position
-
-				cmp ebx, 0 ; If x < 0
-				jl bottomCheck ; Skip bottomCheck
-				cmp ebx, boardWidth ; If x >= boardWidth
-				jge bottomCheck ; Skip bottomCheck
-				cmp ecx, 0 ; If y < 0
-				jl bottomCheck ; Skip to bottomCheck
-				cmp ecx, boardWidth ; If y >= boardWidth
-				jge bottomCheck ; Skip to bottomCheck
-
-
-				; If it is a valid coordinate
-				mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
-				call xyToIndex ; Convert x,y to index
-				mov edi, offset baseState ; Get offset of baseState in edi
-				add edi, eax ; Move offset to specified element
-
-				mov eax, 9
-				cmp [edi], al ; If value at index is a mine
-				je bottomCheck ; Skip this tile
-
-				mov eax, 1
-				add [edi], al ; Increment by one
-
-			bottomCheck:
-				; Restore loop counters from previous check
-				pop ebx
-				pop ecx
-
-				; Store loop counters
-				push ecx
-				push ebx
-
-				inc ecx ; Change cooardinates to (x, y+1) relative to mine position
-
-				cmp ebx, 0 ; If x < 0
-				jl bottomRightCheck ; Skip bottomRightCheck
-				cmp ebx, boardWidth ; If x >= boardWidth
-				jge bottomRightCheck ; Skip bottomRightCheck
-				cmp ecx, 0 ; If y < 0
-				jl bottomRightCheck ; Skip to bottomRightCheck
-				cmp ecx, boardWidth ; If y >= boardWidth
-				jge bottomRightCheck ; Skip to bottomRightCheck
-
-
-				; If it is a valid coordinate
-				mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
-				call xyToIndex ; Convert x,y to index
-				mov edi, offset baseState ; Get offset of baseState in edi
-				add edi, eax ; Move offset to specified element
-
-				mov eax, 9
-				cmp [edi], al ; If value at index is a mine
-				je bottomRightCheck ; Skip this tile
-
-				mov eax, 1
-				add [edi], al ; Increment by one
-
-			bottomRightCheck:
-				; Restore loop counters from previous check
-				pop ebx
-				pop ecx
-
-				; Store loop counters
-				push ecx
-				push ebx
-
-				inc ebx
-				inc ecx ; Change cooardinates to (x+1, y+1) relative to mine position
-
-				cmp ebx, 0 ; If x < 0
-				jl doneWithChecking ; Skip doneWithChecking
-				cmp ebx, boardWidth ; If x >= boardWidth
-				jge doneWithChecking ; Skip doneWithChecking
-				cmp ecx, 0 ; If y < 0
-				jl doneWithChecking ; Skip to doneWithChecking
-				cmp ecx, boardWidth ; If y >= boardWidth
-				jge doneWithChecking ; Skip to doneWithChecking
-
-
-				; If it is a valid coordinate
-				mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
-				call xyToIndex ; Convert x,y to index
-				mov edi, offset baseState ; Get offset of baseState in edi
-				add edi, eax ; Move offset to specified element
-
-				mov eax, 9
-				cmp [edi], al ; If value at index is a mine
-				je doneWithChecking ; Skip this tile
-
-				mov eax, 1
-				add [edi], al ; Increment by one
-
-			doneWithChecking:
-				; Restore loop counters from previous check
-				pop ebx
-				pop ecx
+			; Return loop counters to normal values
+			sub ecx, 1
+			sub ebx, 1
 
 			skip:
 				add esi, type baseState
@@ -514,6 +275,34 @@ populateAdjacencies proc
 
 	ret
 populateAdjacencies endp
+
+checkAdjacency PROC
+	cmp ebx, 0 ; If x < 0
+	jl checkAdjacencyDone ; Skip checkAdjacencyDone
+	cmp ebx, boardWidth ; If x >= boardWidth
+	jge checkAdjacencyDone ; Skip checkAdjacencyDone
+	cmp ecx, 0 ; If y < 0
+	jl checkAdjacencyDone ; Skip to checkAdjacencyDone
+	cmp ecx, boardWidth ; If y >= boardWidth
+	jge checkAdjacencyDone ; Skip to checkAdjacencyDone
+
+
+	; If it is a valid coordinate
+	mov eax, ecx ; Move y coordinate to eax (x is already in ebx)
+	call xyToIndex ; Convert x,y to index
+	mov edi, offset baseState ; Get offset of baseState in edi
+	add edi, eax ; Move offset to specified element
+
+	mov eax, 9
+	cmp [edi], al ; If value at index is a mine
+	je checkAdjacencyDone ; Skip this tile
+
+	mov eax, 1
+	add [edi], al ; Increment by one
+
+	checkAdjacencyDone:
+	ret
+checkAdjacency ENDP
 
 ; TODO: Correctly handle non-integer input
 ;Inputs:
