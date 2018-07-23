@@ -24,6 +24,8 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	xCoord db ?
 	yCoord db ?
 
+	gameState db 0 ;0 ongoing, 1 loss, 2 win
+	
 	; Width of game board
 	boardWidth dd ?
 
@@ -75,15 +77,49 @@ main proc
 
 	call Randomize
 	call welcomeMenu
-	call inputBoardWidth
-	call generateMines
-	call placeMines
-	call printBoardDebug
-	call populateAdjacencies
-	;call Clrscr
-	call printBoardDebug
-	;call mouseLoop
-	invoke ExitProcess, 0
+	outer:
+		call inputBoardWidth
+		call generateMines
+		call placeMines
+		call populateAdjacencies
+		inner:
+			call Clrscr
+			call redrawBoard
+			call mouseLoc
+			mov dl, 1
+			cmp clickType, dl
+			jne isRightClick
+			call handleLeftClick
+			call lossCheck
+			mov gameState, al
+			mov dl, 2
+			cmp gameState, dl
+			je handleLoss
+			call winCheck
+			mov gameState, al
+			jmp skipRightClick
+		isRightClick:
+			call handleRightClick
+		skipRightClick:
+			mov dl, 1
+			cmp gameState, dl
+			je handleWin
+			jmp inner
+		handleWin:
+			;print you win
+			jmp playAgain
+		handleLoss:
+			;uncover mines
+			;print you lose
+		playAgain:
+			call askPlayAgain
+			mov edx, 1
+			cmp eax, edx
+			jne quit
+			call Clrscr
+			jmp outer
+		quit:
+			invoke ExitProcess, 0
 
 main endp
 
@@ -628,7 +664,7 @@ lossCheck ENDP
 ;	coverState
 ;	boardWidth
 ;Outputs:
-;	eax: 1 if win, 0 if not
+;	eax: 2 if win, 0 if not
 winCheck PROC
 	pushad
 	mov esi, offset baseState
@@ -648,7 +684,7 @@ ignore:
 	inc edi
 	loop loopThrough
 	popad
-	mov eax, 1
+	mov eax, 2
 	jmp finishWinCheck
 noWin:
 	popad
