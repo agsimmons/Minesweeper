@@ -654,6 +654,46 @@ finishWinCheck:
 	
 winCheck ENDP
 
+; Inputs:
+;	yCoord
+;	xCoord
+;	coverState
+; Outputs:
+;	coverState
+handleRightClick proc
+	push eax
+	push ebx
+	push ecx
+	push edx
+
+	mov edi, offset coverState
+	mov eax, 0
+	mov al, yCoord
+	mov ebx, 0
+	mov bl, xCoord
+	call xyToIndex		;generate offset
+
+	mov ecx, 3		;3 for compare
+	mov edx, 1		;1 for increment
+
+	add edi, eax		;load location of square
+	cmp [edi], ecx		;compare to 3 (1 covered, 2 mine-flag, 3 question mark)
+	jge one			;if square >= 3, set as one (covered)
+
+	add [edi], edx		;else increment square
+	jmp ex			;exit
+
+	one:
+		mov [edi], edx	;set square to one
+	ex:			;exit
+
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	ret
+handleRightClick endp
+
 ;Inputs:
 ;	eax: Y Coordinate
 ;	ebx: X Coordinate
