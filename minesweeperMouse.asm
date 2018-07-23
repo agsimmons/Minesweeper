@@ -81,7 +81,7 @@ main proc
 
 main endp
 
-coordToGrid PROC
+coordToGrid proc
 	call Crlf
 	mov dx,0
 	mov eax,0
@@ -97,9 +97,9 @@ coordToGrid PROC
 	mov yCoord, al
 	call WriteInt
 	ret
-coordToGrid ENDP
+coordToGrid endp
 
-mouseLoc PROC
+mouseLoc proc
 	invoke GetStdHandle, STD_INPUT_HANDLE
 	mov rHnd, eax
 	invoke SetConsoleMode, rHnd, ENABLE_LINE_INPUT OR ENABLE_MOUSE_INPUT OR ENABLE_EXTENDED_FLAGS
@@ -127,7 +127,7 @@ mouseLoc PROC
 	clicked:
 		call coordToGrid
 	ret
-mouseLoc ENDP
+mouseLoc endp
 
 ; Inputs:
 ;	boardWidth
@@ -276,7 +276,7 @@ populateAdjacencies proc
 	ret
 populateAdjacencies endp
 
-checkAdjacency PROC
+checkAdjacency proc
 	cmp ebx, 0 ; If x < 0
 	jl checkAdjacencyDone ; Skip checkAdjacencyDone
 	cmp ebx, boardWidth ; If x >= boardWidth
@@ -302,7 +302,7 @@ checkAdjacency PROC
 
 	checkAdjacencyDone:
 	ret
-checkAdjacency ENDP
+checkAdjacency endp
 
 ; TODO: Correctly handle non-integer input
 ;Inputs:
@@ -311,7 +311,7 @@ checkAdjacency ENDP
 ;	eax: Play again response
 ;     0: No
 ;     1: Yes
-askPlayAgain PROC
+askPlayAgain proc
 	push edx
 
 	askPlayAgainQuestion:
@@ -330,7 +330,7 @@ askPlayAgain PROC
 	doneAskPlayAgain:
 		pop edx
 		ret
-askPlayAgain ENDP
+askPlayAgain endp
 
 ; Inputs:
 ;	coverState
