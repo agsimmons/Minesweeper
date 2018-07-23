@@ -33,7 +33,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	;Text messages
 	widthRequest db "Choose your board size: (1) Small, (2) Medium, or (3) Large:",0
 	sizeInputError db "Please input 1, 2 or 3.", 0
-	playAgainMessage db "Would you like to play again? (1 for yes, 0 for no): ", 0
+	playAgainMessage db "Would you like to play again? (1 for yes, 2 for no): ", 0
 
 	; Base state array
 	; Possible values:
@@ -437,8 +437,8 @@ checkAdjacency endp
 ;	None
 ;Outputs:
 ;	eax: Play again response
-;     0: No
-;     1: Yes
+; 	1: yes
+; 	2: no
 askPlayAgain proc
 	push edx
 
@@ -450,7 +450,7 @@ askPlayAgain proc
 
 		cmp eax, 1
 		je doneAskPlayAgain
-		cmp eax, 0
+		cmp eax, 2
 		je doneAskPlayAgain
 
 		jmp askPlayAgainQuestion
