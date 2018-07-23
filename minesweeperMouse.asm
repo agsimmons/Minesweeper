@@ -89,9 +89,9 @@ main endp
 ;	xLoc
 ;	yLoc
 mouseLoop proc
-mLoop:
-	call mouseLoc
-	jmp mLoop
+	mLoop:
+		call mouseLoc
+		jmp mLoop
 mouseLoop endp
 
 ; Inputs:
