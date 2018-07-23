@@ -601,12 +601,15 @@ inputBoardWidth endp
 ;	eax: 1 if lose, 0 if not
 lossCheck PROC
 	pushad
-	mov eax, yCoord
-	mov ebx, xCoord
+	mov eax, 0
+	mov al, yCoord
+	mov ebx, 0
+	mov bl, xCoord
 	call xyToIndex
 	mov esi, offset baseState
 	add esi, eax
-	cmp [esi], 9
+	mov edx, 9
+	cmp [esi], edx
 	popad
 	mov eax, 1
 	jmp finishLossCheck
@@ -630,9 +633,11 @@ winCheck PROC
 	mul eax
 	mov ecx, eax
 loopThrough:
-	cmp [esi], 9
+	mov edx, 9
+	cmp [esi], edx
 	je ignore ;ignore if it's a mine
-	cmp [edi], 0
+	mov edx, 0
+	cmp [edi], edx
 	jne noWin ;if a nonmine is covered you have not won
 ignore:
 	inc esi
