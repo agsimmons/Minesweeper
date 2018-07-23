@@ -16,6 +16,7 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 	numEventsOccurred DWORD ?
 	eventBuffer INPUT_RECORD 128 DUP(<>)
 	coordString BYTE "(", 0
+	clickType db ?
 	xLoc db ?
 	yLoc db ?
 
@@ -65,6 +66,8 @@ INCLUDELIB \masm32\lib\Irvine32.lib
 	creditsMessage db "               By. Andrew Simmons, Brendan Sileo, and Ethan Smith", 0dh, 0ah, 0
 
 	space db " "
+	leftClick db "Left Click", 0
+	rightClick db "Right Click", 0
 
 .code
 main proc
@@ -169,6 +172,17 @@ mouseLoop endp
 ;	yCoord
 coordToGrid proc
 	pusha
+	cmp clickType, 1
+	jne right
+	mov edx, offset leftClick
+	jmp cont
+right:
+	cmp clickType, 2
+	jne cont
+	mov edx, offset rightClick
+cont:
+	call Crlf
+	call WriteString
 	call Crlf
 	mov dx,0
 	mov eax,0
@@ -201,7 +215,7 @@ mouseLoc proc
 		invoke GetNumberOfConsoleInputEvents, rHnd, OFFSET numEventsOccurred
 		cmp numEventsOccurred, 0
 		je appContinue
-		invoke ReadConsoleInput, rHnd, OFFSET eventBuffer, numEventsOccurred, 	OFFSET numEventsRead
+		invoke ReadConsoleInput, rHnd, OFFSET eventBuffer, numEventsOccurred, OFFSET numEventsRead
 		mov ecx, numEventsRead
 		mov esi, OFFSET eventBuffer
 	loopOverEvents:
@@ -209,7 +223,9 @@ mouseLoc proc
 		cmp (INPUT_RECORD PTR [esi]).EventType, MOUSE_EVENT
 		jne notMouse
 		test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, FROM_LEFT_1ST_BUTTON_PRESSED
-		jz notMouse
+		jz checkRight
+		mov clickType, 1
+	getMouseLoc:
 		mov eax, boardWidth
 		mov ebx, 3
 		mul ebx
@@ -232,7 +248,13 @@ mouseLoc proc
 		call coordToGrid
 	popa
 	ret
-mouseLoc endp
+	
+	checkRight:
+		test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, RIGHTMOST_BUTTON_PRESSED
+		jz notMouse
+		mov clickType, 2
+		jmp getMouseLoc
+mouseLoc ENDP
 
 ; Inputs:
 ;	boardWidth
