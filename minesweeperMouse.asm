@@ -159,11 +159,29 @@ redrawBoard endp
 ; Outputs:
 ;	xLoc
 ;	yLoc
-mouseLoop proc
+handleInput proc
 	mLoop:
 		call mouseLoc
+		call clickEvent
 		jmp mLoop
-mouseLoop endp
+handleInput endp
+
+clickEvent proc
+	mov dl, 1
+	cmp clickType, dl
+	jne right
+	call handleLeftClick
+	jmp doneWithCE
+right:
+	call handleRightClick
+doneWithCE:
+	ret
+clickEvent endp
+
+handleLeftClick proc
+	call lossCheck
+	ret
+handleLeftClick endp
 
 ; Inputs:
 ;	xLoc
@@ -173,31 +191,17 @@ mouseLoop endp
 ;	yCoord
 coordToGrid proc
 	pushad
-	cmp clickType, 1
-	jne right
-	mov edx, offset leftClick
-	jmp cont
-right:
-	cmp clickType, 2
-	jne cont
-	mov edx, offset rightClick
-cont:
-	call Crlf
-	call WriteString
-	call Crlf
 	mov dx,0
 	mov eax,0
 	mov al,xLoc
 	mov cx,2
 	div cx
 	mov xCoord, al
-	call WriteInt
 
 	mov eax, 0
 	mov al, yLoc
 	sub al, 1
 	mov yCoord, al
-	call WriteInt
 	popad
 	ret
 coordToGrid endp
