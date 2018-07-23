@@ -2,13 +2,14 @@ TITLE Minesweeper By Andrew Simmons, Brendan Sileo, Ethan Smith
 .386
 .MODEL FLAT, STDCALL
 OPTION CASEMAP:none
-INCLUDE \masm32\include\Irvine32.inc
-INCLUDE \masm32\include\windows.inc
-INCLUDE \masm32\include\user32.inc
-INCLUDE \masm32\include\kernel32.inc
-INCLUDELIB \masm32\lib\user32.lib
-INCLUDELIB \masm32\lib\kernel32.lib
-INCLUDELIB \masm32\lib\Irvine32.lib
+INCLUDE C:\Irvine\Irvine32mine.inc
+INCLUDE C:\masm32\include\windows.inc
+INCLUDE C:\masm32\include\user32.inc
+INCLUDE C:\masm32\include\kernel32.inc
+
+INCLUDELIB C:\masm32\lib\user32.lib
+INCLUDELIB C:\masm32\lib\kernel32.lib
+INCLUDELIB C:\Irvine\Irvine32.lib
 
 .data
 	rHnd HANDLE ?
