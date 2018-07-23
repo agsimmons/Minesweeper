@@ -215,7 +215,6 @@ doneWithCE:
 clickEvent endp
 
 handleLeftClick proc
-	call lossCheck
 	ret
 handleLeftClick endp
 
