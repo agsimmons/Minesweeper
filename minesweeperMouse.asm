@@ -88,11 +88,11 @@ main endp
 ; Outputs:
 ;	xLoc
 ;	yLoc
-mouseLoop PROC
+mouseLoop proc
 mLoop:
 	call mouseLoc
 	jmp mLoop
-mouseLoop ENDP
+mouseLoop endp
 
 ; Inputs:
 ;	xLoc
@@ -100,7 +100,7 @@ mouseLoop ENDP
 ; Outputs:
 ;	xCoord
 ;	yCoord
-coordToGrid PROC
+coordToGrid proc
 	pusha
 	call Crlf
 	mov dx,0
@@ -125,7 +125,7 @@ coordToGrid endp
 ; Outputs:
 ;	xLoc
 ;	yLoc
-mouseLoc PROC
+mouseLoc proc
 	pusha
 	invoke GetStdHandle, STD_INPUT_HANDLE
 	mov rHnd, eax
