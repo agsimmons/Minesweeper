@@ -91,11 +91,11 @@ main endp
 ; Outputs:
 ;	xLoc
 ;	yLoc
-mouseLoop PROC
-mLoop:	
+mouseLoop proc
+mLoop:
 	call mouseLoc
 	jmp mLoop
-mouseLoop ENDP
+mouseLoop endp
 
 ; Inputs:
 ;	xLoc
@@ -103,7 +103,7 @@ mouseLoop ENDP
 ; Outputs:
 ;	xCoord
 ;	yCoord
-coordToGrid PROC
+coordToGrid proc
 	pusha
 	cmp clickType, 1
 	jne right
@@ -132,14 +132,14 @@ cont:
 	call WriteInt
 	popa
 	ret
-coordToGrid ENDP
+coordToGrid endp
 
 ; Inputs:
 ;	boardWidth
 ; Outputs:
 ;	xLoc
 ;	yLoc
-mouseLoc PROC
+mouseLoc proc
 	pusha
 	invoke GetStdHandle, STD_INPUT_HANDLE
 	mov rHnd, eax
@@ -336,7 +336,7 @@ populateAdjacencies proc
 	ret
 populateAdjacencies endp
 
-checkAdjacency PROC
+checkAdjacency proc
 	cmp ebx, 0 ; If x < 0
 	jl checkAdjacencyDone ; Skip checkAdjacencyDone
 	cmp ebx, boardWidth ; If x >= boardWidth
@@ -362,7 +362,7 @@ checkAdjacency PROC
 
 	checkAdjacencyDone:
 	ret
-checkAdjacency ENDP
+checkAdjacency endp
 
 ; TODO: Correctly handle non-integer input
 ;Inputs:
@@ -371,7 +371,7 @@ checkAdjacency ENDP
 ;	eax: Play again response
 ;     0: No
 ;     1: Yes
-askPlayAgain PROC
+askPlayAgain proc
 	push edx
 
 	askPlayAgainQuestion:
@@ -390,7 +390,7 @@ askPlayAgain PROC
 	doneAskPlayAgain:
 		pop edx
 		ret
-askPlayAgain ENDP
+askPlayAgain endp
 
 ; Inputs:
 ;	coverState
