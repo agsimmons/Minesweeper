@@ -172,7 +172,7 @@ mouseLoop endp
 ;	xCoord
 ;	yCoord
 coordToGrid proc
-	pusha
+	pushad
 	cmp clickType, 1
 	jne right
 	mov edx, offset leftClick
@@ -198,7 +198,7 @@ cont:
 	sub al, 1
 	mov yCoord, al
 	call WriteInt
-	popa
+	popad
 	ret
 coordToGrid endp
 
@@ -208,7 +208,7 @@ coordToGrid endp
 ;	xLoc
 ;	yLoc
 mouseLoc proc
-	pusha
+	pushad
 	invoke GetStdHandle, STD_INPUT_HANDLE
 	mov rHnd, eax
 	invoke SetConsoleMode, rHnd, ENABLE_LINE_INPUT OR ENABLE_MOUSE_INPUT OR ENABLE_EXTENDED_FLAGS
@@ -247,7 +247,7 @@ mouseLoc proc
 		jmp appContinue
 	clicked:
 		call coordToGrid
-	popa
+	popad
 	ret
 	
 	checkRight:
@@ -592,6 +592,62 @@ inputBoardWidth proc
 		call Crlf
 		jmp getInput
 inputBoardWidth endp
+
+;Inputs:
+;	baseState
+;	xCoord
+;	yCoord
+;Outputs:
+;	eax: 1 if lose, 0 if not
+lossCheck PROC
+	pushad
+	mov eax, yCoord
+	mov ebx, xCoord
+	call xyToIndex
+	mov esi, offset baseState
+	add esi, eax
+	cmp [esi], 9
+	popad
+	mov eax, 1
+	jmp finishLossCheck
+	popad
+	mov eax, 0
+finishLossCheck:
+	ret
+lossCheck ENDP
+
+;Inputs:
+;	baseState
+;	coverState
+;	boardWidth
+;Outputs:
+;	eax: 1 if win, 0 if not
+winCheck PROC
+	pushad
+	mov esi, offset baseState
+	mov edi, offset coverState
+	mov eax, boardWidth
+	mul eax
+	mov ecx, eax
+loopThrough:
+	cmp [esi], 9
+	je ignore ;ignore if it's a mine
+	cmp [edi], 0
+	jne noWin ;if a nonmine is covered you have not won
+ignore:
+	inc esi
+	inc edi
+	loop loopThrough
+	popad
+	mov eax, 1
+	jmp finishWinCheck
+noWin:
+	popad
+	mov eax, 0
+finishWinCheck:
+	ret
+	
+winCheck ENDP
 
 ;Inputs:
 ;	eax: Y Coordinate
