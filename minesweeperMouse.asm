@@ -83,6 +83,73 @@ main proc
 
 main endp
 
+; TODO: Test this. I couldn't test it without the functionality to uncover the board
+redrawBoard proc
+	pushad ; Push register states
+
+	mov esi, offset baseState
+	mov edi, offset coverState
+
+	mov ecx, 0 ; outerRedrawLoopCounter
+	mov ebx, 0 ; innerRedrawLoopCounter
+
+	outerRedrawLoop:
+		mov al, '|'
+		call WriteChar
+
+		mov ebx, 0 ; Reset innerPopulateLoopCount for each iteration of outer loop
+		innerRedrawLoop:
+			; Do work
+			mov al, [edi] ; Move nth value of coverState into al
+			cmp al, 0 ; If location is uncovered
+			je uncoveredState ; Jump to uncoveredState
+			; Otherwise, if location is covered
+			; Draw as covered
+			mov al, '#'
+			call WriteChar
+			jmp afterCharacter
+
+			uncoveredState:
+				mov al, [esi] ; Move baseState value into al
+				cmp al, 0
+				je drawSpace
+
+
+				drawSpace:
+					mov al, ' '
+					call WriteChar
+					jmp afterCharacter
+				drawAdjacency:
+					add al, 48 ; Convert number to ascii character
+					call WriteChar
+					jmp afterCharacter
+				drawMine:
+					mov al, '*'
+					call WriteChar
+					jmp afterCharacter
+
+			afterCharacter:
+				mov al, '|'
+				call WriteChar
+
+			inc esi
+			inc edi
+			; End work
+
+			inc ebx ; Increment innerPopulateLoopCounter
+			cmp ebx, boardWidth ; If innerPopulateLoopCounter != boardWidth
+			jne innerRedrawLoop ; Repeat inner loop
+		; <Post Outer Loop>
+		call Crlf ; Move cursor to new line
+		; </Post Outer Loop>
+		inc ecx ; Increment outerRedrawLoopCounter
+		cmp ecx, boardWidth ; If outerRedrawLoopCounter != boardWidth
+		jne outerRedrawLoop ; Repeat outer loop
+
+	popad ; Pop register states
+	ret
+redrawBoard endp
+
 ; Inputs:
 ;	None
 ; Outputs:
