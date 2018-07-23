@@ -76,12 +76,32 @@ main proc
 	call placeMines
 	call printBoardDebug
 	call populateAdjacencies
+	;call Clrscr
 	call printBoardDebug
+	;call mouseLoop
 	invoke ExitProcess, 0
 
 main endp
 
-coordToGrid proc
+; Inputs:
+;	None
+; Outputs:
+;	xLoc
+;	yLoc
+mouseLoop PROC
+mLoop:
+	call mouseLoc
+	jmp mLoop
+mouseLoop ENDP
+
+; Inputs:
+;	xLoc
+;	yLoc
+; Outputs:
+;	xCoord
+;	yCoord
+coordToGrid PROC
+	pusha
 	call Crlf
 	mov dx,0
 	mov eax,0
@@ -96,10 +116,17 @@ coordToGrid proc
 	sub al, 1
 	mov yCoord, al
 	call WriteInt
+	popa
 	ret
 coordToGrid endp
 
-mouseLoc proc
+; Inputs:
+;	boardWidth
+; Outputs:
+;	xLoc
+;	yLoc
+mouseLoc PROC
+	pusha
 	invoke GetStdHandle, STD_INPUT_HANDLE
 	mov rHnd, eax
 	invoke SetConsoleMode, rHnd, ENABLE_LINE_INPUT OR ENABLE_MOUSE_INPUT OR ENABLE_EXTENDED_FLAGS
@@ -111,10 +138,20 @@ mouseLoc proc
 		mov ecx, numEventsRead
 		mov esi, OFFSET eventBuffer
 	loopOverEvents:
+		;ignore if >= 3x board width
 		cmp (INPUT_RECORD PTR [esi]).EventType, MOUSE_EVENT
 		jne notMouse
 		test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, FROM_LEFT_1ST_BUTTON_PRESSED
 		jz notMouse
+		mov eax, boardWidth
+		mov ebx, 3
+		mul ebx
+		cmp (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.x, ax
+		jge notMouse
+		mov eax, boardWidth
+		add eax, 1
+		cmp (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.y, ax
+		jge notMouse
 		movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.x
 		mov xLoc, al
 		movzx eax, (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.y
@@ -126,6 +163,7 @@ mouseLoc proc
 		jmp appContinue
 	clicked:
 		call coordToGrid
+	popa
 	ret
 mouseLoc endp
 
