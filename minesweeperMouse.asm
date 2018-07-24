@@ -229,7 +229,32 @@ clickEvent proc
 	ret
 clickEvent endp
 
+; TODO: Test to make sure you can't left click on a flagged or question marked tile
 handleLeftClick proc
+	pushad
+
+	mov esi, offset coverState
+
+	mov eax, 0
+	mov al, yCoord
+	mov ebx, 0
+	mov bl, xCoord
+	call xyToIndex
+
+	add esi, eax ; Move offset to location of click
+
+	mov eax, 0
+	mov al, [esi]
+	cmp al, 1 ; If cover state is not 1 (covered, no flag or question mark)
+	jne handleLeftClickDone ; Skip the following code
+
+	; If cover state is 1 (covered, no flag or question mark)
+	mov eax, 0
+	mov [esi], al ; Uncover spot
+
+	handleLeftClickDone:
+
+	popad
 	ret
 handleLeftClick endp
 
