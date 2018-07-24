@@ -76,7 +76,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 main proc
 
 	call Randomize
-	call welcomeMenu
+	;call welcomeMenu
 	outer:
 		call inputBoardWidth
 		call generateMines
@@ -145,7 +145,18 @@ redrawBoard proc
 			je uncoveredState ; Jump to uncoveredState
 			; Otherwise, if location is covered
 			; Draw as covered
+			cmp al, 1
+			jne check2
 			mov al, '#'
+			jmp drawCover
+		check2:
+			cmp al, 2
+			jne check3
+			mov al, 'F'
+			jmp drawCover
+		check3:
+			mov al, '?'
+		drawCover:
 			call WriteChar
 			jmp afterCharacter
 
@@ -526,7 +537,7 @@ printBoardDebug proc
 	mov edx, offset space
 	nl:
 		cmp ecx, 0		;print newline & end proc when ecx 0
-		jle done		;
+		jle done1		;
 		call Crlf		;
 		mov ebx, boardWidth	;
 	print:
@@ -546,7 +557,7 @@ printBoardDebug proc
 
 		cmp ecx, 0
 		jge print
-	done:
+	done1:
 		call Crlf
 		pop edx
 		pop ecx
@@ -719,13 +730,15 @@ handleRightClick proc
 	mov edx, 1		;1 for increment
 
 	add edi, eax		;load location of square
-	cmp [edi], ecx		;compare to 3 (1 covered, 2 mine-flag, 3 question mark)
+	
+	cmp [edi], cl		;compare to 3 (1 covered, 2 mine-flag, 3 question mark)
 	jge one			;if square >= 3, set as one (covered)
+	mov al, [edi]
 	add [edi], edx		;else increment square
 	jmp ex			;exit
 
 	one:
-		mov [edi], edx	;set square to one
+		mov [edi], dl	;set square to one
 	ex:			;exit
 	pop edx
 	pop ecx
