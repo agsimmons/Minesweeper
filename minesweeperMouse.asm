@@ -76,7 +76,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 main proc
 
 	call Randomize
-	;call welcomeMenu
+	call welcomeMenu
 	outer:
 		call inputBoardWidth
 		call generateMines
