@@ -154,17 +154,21 @@ redrawBoard proc
 				cmp al, 0
 				je drawSpace
 
+				cmp al, 9
+				je drawMine
+
+				jmp drawAdjacency
 
 				drawSpace:
 					mov al, ' '
 					call WriteChar
 					jmp afterCharacter
-				drawAdjacency:
-					add al, 48 ; Convert number to ascii character
-					call WriteChar
-					jmp afterCharacter
 				drawMine:
 					mov al, '*'
+					call WriteChar
+					jmp afterCharacter
+				drawAdjacency:
+					add al, 48 ; Convert number to ascii character
 					call WriteChar
 					jmp afterCharacter
 
