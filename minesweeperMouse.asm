@@ -235,7 +235,6 @@ coordToGrid proc
 
 	mov eax, 0
 	mov al, yLoc
-	sub al, 1
 	mov yCoord, al
 	popad
 	ret
@@ -259,7 +258,6 @@ mouseLoc proc
 		mov ecx, numEventsRead
 		mov esi, OFFSET eventBuffer
 	loopOverEvents:
-		;ignore if >= 3x board width
 		cmp (INPUT_RECORD PTR [esi]).EventType, MOUSE_EVENT
 		jne notMouse
 		test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, FROM_LEFT_1ST_BUTTON_PRESSED
@@ -267,8 +265,9 @@ mouseLoc proc
 		mov clickType, 1
 	getMouseLoc:
 		mov eax, boardWidth
-		mov ebx, 3
+		mov ebx, 2
 		mul ebx
+		add eax, 2
 		cmp (INPUT_RECORD PTR [esi]).MouseEvent.dwMousePosition.x, ax
 		jge notMouse
 		mov eax, boardWidth
@@ -718,14 +717,12 @@ handleRightClick proc
 	add edi, eax		;load location of square
 	cmp [edi], ecx		;compare to 3 (1 covered, 2 mine-flag, 3 question mark)
 	jge one			;if square >= 3, set as one (covered)
-
 	add [edi], edx		;else increment square
 	jmp ex			;exit
 
 	one:
 		mov [edi], edx	;set square to one
 	ex:			;exit
-
 	pop edx
 	pop ecx
 	pop ebx
