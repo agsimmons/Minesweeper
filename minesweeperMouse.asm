@@ -25,7 +25,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	yCoord db ?
 
 	gameState db 0 ;0 ongoing, 1 loss, 2 win
-	
+
 	; Width of game board
 	boardWidth dd ?
 
@@ -302,7 +302,7 @@ mouseLoc proc
 		call coordToGrid
 	popad
 	ret
-	
+
 	checkRight:
 		test (INPUT_RECORD PTR [esi]).MouseEvent.dwButtonState, RIGHTMOST_BUTTON_PRESSED
 		jz notMouse
@@ -685,26 +685,25 @@ winCheck PROC
 	mov eax, boardWidth
 	mul eax
 	mov ecx, eax
-loopThrough:
-	mov edx, 9
-	cmp [esi], edx
-	je ignore ;ignore if it's a mine
-	mov edx, 0
-	cmp [edi], edx
-	jne noWin ;if a nonmine is covered you have not won
-ignore:
-	inc esi
-	inc edi
-	loop loopThrough
-	popad
-	mov eax, 2
-	jmp finishWinCheck
-noWin:
-	popad
-	mov eax, 0
-finishWinCheck:
-	ret
-	
+	loopThrough:
+		mov edx, 9
+		cmp [esi], edx
+		je ignore ;ignore if it's a mine
+		mov edx, 0
+		cmp [edi], edx
+		jne noWin ;if a nonmine is covered you have not won
+	ignore:
+		inc esi
+		inc edi
+		loop loopThrough
+		popad
+		mov eax, 2
+		jmp finishWinCheck
+	noWin:
+		popad
+		mov eax, 0
+	finishWinCheck:
+		ret
 winCheck ENDP
 
 ; Inputs:
@@ -730,7 +729,7 @@ handleRightClick proc
 	mov edx, 1		;1 for increment
 
 	add edi, eax		;load location of square
-	
+
 	cmp [edi], cl		;compare to 3 (1 covered, 2 mine-flag, 3 question mark)
 	jge one			;if square >= 3, set as one (covered)
 	mov al, [edi]
