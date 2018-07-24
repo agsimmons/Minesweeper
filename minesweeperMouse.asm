@@ -668,7 +668,8 @@ lossCheck PROC
 	jmp finishLossCheck
 	popad
 	mov eax, 0
-finishLossCheck:
+
+	finishLossCheck:
 	ret
 lossCheck ENDP
 
