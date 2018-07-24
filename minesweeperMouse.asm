@@ -223,9 +223,9 @@ clickEvent proc
 	jne right
 	call handleLeftClick
 	jmp doneWithCE
-right:
-	call handleRightClick
-doneWithCE:
+	right:
+		call handleRightClick
+	doneWithCE:
 	ret
 clickEvent endp
 
