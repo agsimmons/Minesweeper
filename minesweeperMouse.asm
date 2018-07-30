@@ -109,7 +109,7 @@ main proc
 			;print you win
 			jmp playAgain
 		handleLoss:
-			;uncover mines
+			call uncoverAllMines
 			;print you lose
 		playAgain:
 			call askPlayAgain
@@ -122,6 +122,47 @@ main proc
 			invoke ExitProcess, 0
 
 main endp
+
+uncoverAllMines proc
+	pushad
+
+	mov esi, offset baseState
+	mov edi, offset coverState
+
+	mov ecx, 0 ; outerRedrawLoopCounter
+	mov ebx, 0 ; innerRedrawLoopCounter
+
+	outerUncoverAllMinesLoop:
+		mov ebx, 0 ; Reset innerUncoverAllMinesLoopCount for each iteration of outer loop
+		innerUncoverAllMinesLoop:
+			; Do work
+
+			mov al, [esi] ; Move base state value into al
+			cmp al, 9 ; If there is NOT a mine here
+			jne skipUncoverAllMinesLoop
+			; If there IS a mine here
+			mov al, 0 ; Put uncovered value into al
+			mov [edi], al ; Set cover state to uncovered
+
+			skipUncoverAllMinesLoop:
+
+			inc esi
+			inc edi
+			; End work
+
+			inc ebx ; Increment innerUncoverAllMinesLoop
+			cmp ebx, boardWidth ; If innerUncoverAllMinesLoop != boardWidth
+			jne innerUncoverAllMinesLoop ; Repeat inner loop
+		; <Post Outer Loop>
+		call Crlf ; Move cursor to new line
+		; </Post Outer Loop>
+		inc ecx ; Increment outerUncoverAllMinesLoopCounter
+		cmp ecx, boardWidth ; If outerUncoverAllMinesLoopCounter != boardWidth
+		jne outerUncoverAllMinesLoop ; Repeat outer loop
+
+	popad
+	ret
+uncoverAllMines endp
 
 redrawBoard proc
 	pushad ; Push register states
