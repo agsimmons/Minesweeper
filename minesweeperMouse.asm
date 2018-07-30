@@ -905,31 +905,45 @@ lossCheck ENDP
 ;Outputs:
 ;	eax: 2 if win, 0 if not
 winCheck PROC
-	pushad
+	push esi
+	push edi
+	push ebx
+	push ecx
+
 	mov esi, offset baseState
 	mov edi, offset coverState
+
 	mov eax, boardWidth
 	mul eax
 	mov ecx, eax
-	loopThrough:
-		mov edx, 9
-		cmp [esi], edx
-		je ignore ;ignore if it's a mine
-		mov edx, 0
-		cmp [edi], edx
-		jne noWin ;if a nonmine is covered you have not won
-	ignore:
-		inc esi
-		inc edi
-		loop loopThrough
-		popad
-		mov eax, 2
-		jmp finishWinCheck
-	noWin:
-		popad
-		mov eax, 0
-	finishWinCheck:
-		ret
+
+	mov eax, 2 ; Set default return value to WIN
+
+	winCheckLoop:
+		mov bl, [esi] ; Move baseState value into bl
+		cmp bl, 9 ; If it is a mine
+		je endOfWinCheckLoop ; Jump to endOfWinCheckLoop
+
+		; If it is not a mine
+		mov bl, [edi] ; Move coverState value into bl
+		cmp bl, 0 ; If it is uncovered
+		je endOfWinCheckLoop ; Jump to endOfWinCheckLoop
+
+		; If if it covered
+		mov eax, 0 ; Set return value to ONGOING
+		jmp afterWinCheckLoop ; Break from loop
+
+		endOfWinCheckLoop:
+
+		loop winCheckLoop
+
+	afterWinCheckLoop:
+
+	pop ecx
+	pop ebx
+	pop edi
+	pop esi
+	ret
 winCheck ENDP
 
 ; Inputs:
