@@ -94,7 +94,6 @@ main proc
 			jne isRightClick
 			call handleLeftClick
 			call lossCheck
-			call WriteInt
 			mov gameState, al
 			mov dl, 1
 			cmp gameState, dl
@@ -114,6 +113,8 @@ main proc
 			jmp playAgain
 		handleLoss:
 			call uncoverAllMines
+			call Clrscr
+			call redrawBoard
 			;print you lose
 		playAgain:
 			call askPlayAgain
