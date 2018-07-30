@@ -77,6 +77,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	space db " "
 	leftClick db "Left Click", 0
 	rightClick db "Right Click", 0
+	loseMessage db "You Lose!", 0dh, 0ah, 0
 
 .code
 main proc
@@ -146,7 +147,9 @@ main proc
 				call uncoverAllMines
 				call Clrscr
 				call redrawBoard
-				;TODO: Print "You Lose"
+
+				mov edx, offset loseMessage
+				call WriteString
 
 				jmp playAgain
 
