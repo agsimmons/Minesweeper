@@ -17,9 +17,12 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	numEventsOccurred DWORD ?
 	eventBuffer INPUT_RECORD 128 DUP(<>)
 	coordString BYTE "(", 0
-	clickType db ?
 	xLoc db ?
 	yLoc db ?
+
+	; 1: Left Click
+	; 2: Right Click
+	clickType db ?
 
 	xCoord db ?
 	yCoord db ?
@@ -110,7 +113,7 @@ main proc
 			;print you win
 			jmp playAgain
 		handleLoss:
-			;uncover mines
+			call uncoverAllMines
 			;print you lose
 		playAgain:
 			call askPlayAgain
@@ -124,7 +127,47 @@ main proc
 
 main endp
 
-; TODO: Test this. I couldn't test it without the functionality to uncover the board
+uncoverAllMines proc
+	pushad
+
+	mov esi, offset baseState
+	mov edi, offset coverState
+
+	mov ecx, 0 ; outerRedrawLoopCounter
+	mov ebx, 0 ; innerRedrawLoopCounter
+
+	outerUncoverAllMinesLoop:
+		mov ebx, 0 ; Reset innerUncoverAllMinesLoopCount for each iteration of outer loop
+		innerUncoverAllMinesLoop:
+			; Do work
+
+			mov al, [esi] ; Move base state value into al
+			cmp al, 9 ; If there is NOT a mine here
+			jne skipUncoverAllMinesLoop
+			; If there IS a mine here
+			mov al, 0 ; Put uncovered value into al
+			mov [edi], al ; Set cover state to uncovered
+
+			skipUncoverAllMinesLoop:
+
+			inc esi
+			inc edi
+			; End work
+
+			inc ebx ; Increment innerUncoverAllMinesLoop
+			cmp ebx, boardWidth ; If innerUncoverAllMinesLoop != boardWidth
+			jne innerUncoverAllMinesLoop ; Repeat inner loop
+		; <Post Outer Loop>
+		call Crlf ; Move cursor to new line
+		; </Post Outer Loop>
+		inc ecx ; Increment outerUncoverAllMinesLoopCounter
+		cmp ecx, boardWidth ; If outerUncoverAllMinesLoopCounter != boardWidth
+		jne outerUncoverAllMinesLoop ; Repeat outer loop
+
+	popad
+	ret
+uncoverAllMines endp
+
 redrawBoard proc
 	pushad ; Push register states
 
@@ -230,7 +273,8 @@ clickEvent proc
 	ret
 clickEvent endp
 
-; TODO: Test to make sure you can't left click on a flagged or question marked tile
+; If you left click on a covered location, uncover it
+; If you left click on an uncovered, flagged, or question marked location, do nothing
 handleLeftClick proc
 	pushad
 
