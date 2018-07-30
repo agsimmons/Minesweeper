@@ -99,7 +99,7 @@ main proc
 			; Draw current board state
 			call Clrscr
 			call redrawBoard
-			call printBoardDebug
+
 			; Get mouse location and click type
 			call mouseLoc
 
@@ -382,7 +382,7 @@ handleLeftClick proc
 	add edi, eax
 	pop ebx
 	pop eax
-	
+
 	mov edx, 0
 	mov dl, [esi]
 	cmp dl, 1 ; If cover state is not 1 (covered, no flag or question mark)
@@ -428,9 +428,9 @@ handleLeftClick proc
 	; Bottom Right Check
 	add ebx, 1
 	call handleLeftClick
-	
+
 	handleLeftClickDone:
-	
+
 	popad
 	ret
 handleLeftClick endp
