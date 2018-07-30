@@ -939,36 +939,45 @@ winCheck ENDP
 ; Outputs:
 ;	coverState
 handleRightClick proc
-	push eax
-	push ebx
-	push ecx
-	push edx
+	pushad
 
-	mov edi, offset coverState
 	mov eax, 0
 	mov al, yCoord
 	mov ebx, 0
 	mov bl, xCoord
-	call xyToIndex		;generate offset
+	call xyToIndex
 
-	mov ecx, 3		;3 for compare
-	mov edx, 1		;1 for increment
+	mov esi, offset coverState
+	add esi, eax
 
-	add edi, eax		;load location of square
+	mov al, [esi]
+	cmp al, 1 ; If cover state is COVERED
+	je handleRightClickCovered ; Jump to handleRightClickCovered
+	cmp al, 2 ; If cover state is FLAGGED
+	je handleRightClickFlagged ; Jump to handleRightClickFlagged
+	cmp al, 3 ; If cover state is QUESTIONMARKED
+	je handleRightClickQuestionMarked ; Jump to handleRightClickQuestionMarked
 
-	cmp [edi], cl		;compare to 3 (1 covered, 2 mine-flag, 3 question mark)
-	jge one			;if square >= 3, set as one (covered)
-	mov al, [edi]
-	add [edi], edx		;else increment square
-	jmp ex			;exit
+	; Else, if cover state is UNCOVERED
+	jmp afterHandleRightClick ; Jump to afterHandleRightClick
 
-	one:
-		mov [edi], dl	;set square to one
-	ex:			;exit
-		pop edx
-		pop ecx
-		pop ebx
-		pop eax
+	handleRightClickCovered:
+		mov al, 2
+		mov [esi], al
+		jmp afterHandleRightClick
+
+	handleRightClickFlagged:
+		mov al, 3
+		mov [esi], al
+		jmp afterHandleRightClick
+
+	handleRightClickQuestionMarked:
+		mov al, 1
+		mov [esi], al
+		jmp afterHandleRightClick
+
+	afterHandleRightClick:
+		popad
 		ret
 handleRightClick endp
 
