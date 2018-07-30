@@ -78,6 +78,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	leftClick db "Left Click", 0
 	rightClick db "Right Click", 0
 	loseMessage db "You Lose!", 0dh, 0ah, 0
+	winMessage db "You Win!", 0dh, 0ah, 0
 
 .code
 main proc
@@ -126,24 +127,24 @@ main proc
 				; Check for a win
 				call winCheck
 				mov gameState, al ; Move result from winCheck to gameState
-
-				jmp afterClickHandling
-
-			isRightClick:
-				call handleRightClick
-
-				jmp afterClickHandling
-
-			afterClickHandling:
 				mov dl, 2
 				cmp gameState, dl ; If gameState is WIN
 				je handleWin ; Jump to handleWin
 
-				; If gameState is ONGOING
+				jmp innerGameLoop
+
+			isRightClick:
+				call handleRightClick
+
 				jmp innerGameLoop
 
 			handleWin:
-				;print you win
+				call flagAllMines
+				call Clrscr
+				call redrawBoard
+
+				mov edx, offset winMessage
+				call WriteString
 
 				jmp playAgain
 
@@ -207,20 +208,56 @@ initialize proc
 	ret
 initialize endp
 
+flagAllMines proc
+	pushad
+
+	mov esi, offset baseState
+	mov edi, offset coverState
+
+	mov ecx, 0 ; outerFlagAllMinesLoopCount
+	mov ebx, 0 ; innerFlagAllMinesLoopCount
+
+	outerFlagAllMinesLoop:
+		mov ebx, 0 ; Reset innerFlagAllMinesLoopCount for each iteration of outer loop
+		innerFlagAllMinesLoop:
+			; Do work
+			mov al, [esi] ; Move base state value into al
+			cmp al, 9 ; If there is NOT a mine here
+			jne skipFlagAllMinesLoop
+			; If there IS a mine here
+			mov al, 2 ; Put FLAGGED value into al
+			mov [edi], al ; Set cover state to FLAGGED
+
+			skipFlagAllMinesLoop:
+
+			inc esi
+			inc edi
+			; End work
+
+			inc ebx ; Increment innerFlagAllMinesLoop
+			cmp ebx, boardWidth ; If innerFlagAllMinesLoop != boardWidth
+			jne innerFlagAllMinesLoop ; Repeat inner loop
+		inc ecx ; Increment outerFlagAllMinesLoopCount
+		cmp ecx, boardWidth ; If outerFlagAllMinesLoopCount != boardWidth
+		jne outerFlagAllMinesLoop ; Repeat outer loop
+
+	popad
+	ret
+flagAllMines endp
+
 uncoverAllMines proc
 	pushad
 
 	mov esi, offset baseState
 	mov edi, offset coverState
 
-	mov ecx, 0 ; outerRedrawLoopCounter
-	mov ebx, 0 ; innerRedrawLoopCounter
+	mov ecx, 0 ; innerUncoverAllMinesLoopCount
+	mov ebx, 0 ; innerUncoverAllMinesLoopCount
 
-	outerUncoverAllMinesLoop:
+	outerFlagAllMinesLoop:
 		mov ebx, 0 ; Reset innerUncoverAllMinesLoopCount for each iteration of outer loop
 		innerUncoverAllMinesLoop:
 			; Do work
-
 			mov al, [esi] ; Move base state value into al
 			cmp al, 9 ; If there is NOT a mine here
 			jne skipUncoverAllMinesLoop
@@ -237,12 +274,9 @@ uncoverAllMines proc
 			inc ebx ; Increment innerUncoverAllMinesLoop
 			cmp ebx, boardWidth ; If innerUncoverAllMinesLoop != boardWidth
 			jne innerUncoverAllMinesLoop ; Repeat inner loop
-		; <Post Outer Loop>
-		call Crlf ; Move cursor to new line
-		; </Post Outer Loop>
 		inc ecx ; Increment outerUncoverAllMinesLoopCounter
 		cmp ecx, boardWidth ; If outerUncoverAllMinesLoopCounter != boardWidth
-		jne outerUncoverAllMinesLoop ; Repeat outer loop
+		jne outerFlagAllMinesLoop ; Repeat outer loop
 
 	popad
 	ret
