@@ -17,9 +17,12 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	numEventsOccurred DWORD ?
 	eventBuffer INPUT_RECORD 128 DUP(<>)
 	coordString BYTE "(", 0
-	clickType db ?
 	xLoc db ?
 	yLoc db ?
+
+	; 1: Left Click
+	; 2: Right Click
+	clickType db ?
 
 	xCoord db ?
 	yCoord db ?
