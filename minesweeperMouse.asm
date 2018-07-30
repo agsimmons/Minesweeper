@@ -272,7 +272,6 @@ clickEvent proc
 	ret
 clickEvent endp
 
-; TODO: Test to make sure you can't left click on a flagged or question marked tile
 handleLeftClick proc
 	pushad
 
