@@ -92,7 +92,7 @@ main proc
 			call handleLeftClick
 			call lossCheck
 			mov gameState, al
-			mov dl, 2
+			mov dl, 1
 			cmp gameState, dl
 			je handleLoss
 			call winCheck
@@ -101,7 +101,7 @@ main proc
 		isRightClick:
 			call handleRightClick
 		skipRightClick:
-			mov dl, 1
+			mov dl, 2
 			cmp gameState, dl
 			je handleWin
 			jmp inner
