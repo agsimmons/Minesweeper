@@ -27,7 +27,10 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	xCoord db ?
 	yCoord db ?
 
-	gameState db ? ;0 ongoing, 1 loss, 2 win
+	; 0: Ongoing
+	; 1: Loss
+	; 2: Win
+	gameState db ?
 
 	; Width of game board
 	boardWidth dd ?
