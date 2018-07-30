@@ -79,51 +79,81 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 main proc
 	call Randomize
 	call welcomeMenu
-	outer:
+
+	outerGameLoop:
+
+		; Generate Board
 		call inputBoardWidth
 		call generateMines
 		call placeMines
 		call populateAdjacencies
-		inner:
+
+		innerGameLoop:
+			; Draw current board state
 			call Clrscr
 			call redrawBoard
+
+			; Get mouse location and click type
 			call mouseLoc
+
+			; Check click type
 			mov dl, 1
-			cmp clickType, dl
-			jne isRightClick
-			call handleLeftClick
-			call lossCheck
-			mov gameState, al
-			mov dl, 1
-			cmp gameState, dl
-			je handleLoss
-			call winCheck
-			mov gameState, al
-			jmp skipRightClick
-		isRightClick:
-			call handleRightClick
-		skipRightClick:
-			mov dl, 2
-			cmp gameState, dl
-			je handleWin
-			jmp inner
-		handleWin:
-			;print you win
-			jmp playAgain
-		handleLoss:
-			call uncoverAllMines
-			call Clrscr
-			call redrawBoard
-			;print you lose
-		playAgain:
-			call askPlayAgain
-			mov edx, 1
-			cmp eax, edx
-			jne quit
-			call Clrscr
-			jmp outer
-		quit:
-			invoke ExitProcess, 0
+			cmp clickType, dl ; If click type is not Left Click
+			jne isRightClick ; Jump to isRightClick
+			jmp isLeftClick ; Otherwise, jump to isLeftClick
+
+			isLeftClick:
+				call handleLeftClick
+
+				; Check for a loss
+				call lossCheck
+				mov gameState, al
+				mov dl, 1
+				cmp gameState, dl ; If gameState is LOSS
+				je handleLoss ; Jump to handleLoss
+
+				; Check for a win
+				call winCheck
+				mov gameState, al ; Move result from winCheck to gameState
+
+				jmp afterClickHandling
+
+			isRightClick:
+				call handleRightClick
+
+				jmp afterClickHandling
+
+			afterClickHandling:
+				mov dl, 2
+				cmp gameState, dl ; If gameState is WIN
+				je handleWin ; Jump to handleWin
+
+				; If gameState is ONGOING
+				jmp innerGameLoop
+
+			handleWin:
+				;print you win
+
+				jmp playAgain
+
+			handleLoss:
+				call uncoverAllMines
+				call Clrscr
+				call redrawBoard
+				;TODO: Print "You Lose"
+
+				jmp playAgain
+
+			playAgain:
+				call askPlayAgain
+				cmp eax, 1 ; If player DOES NOT want to play again
+				jne quit ; Jump to quit
+
+				; If player DOES want to play again
+				call Clrscr
+				jmp outerGameLoop ; Restart game
+			quit:
+				invoke ExitProcess, 0
 
 main endp
 
@@ -400,9 +430,30 @@ generateMines proc
 	gen:
 		push eax
 		call RandomRange
+
+		;check if eax is in array
+		push ecx
+		push edi
+		check:
+			sub edi, 4
+			cmp eax, [edi]
+			je duplicate
+			loop check
+			jmp nodup
+
+		duplicate:
+			pop edi
+			pop ecx
+			inc ecx
+			inc ecx
+			jmp ex
+
+	nodup:	pop edi
+		pop ecx
+
 		mov [edi], eax
 		add edi, 4
-		pop eax
+	ex:	pop eax
 		loop gen
 
 	pop edx
