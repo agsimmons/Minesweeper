@@ -69,7 +69,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	                     "                 |_|_|_|_|_|_|___|___|_____|___|___|  _|___|_|", 0dh, 0ah, \
 	                     "                                                   |_|", 0dh, 0ah, 0
 
-	creditsMessage db "               By. Andrew Simmons, Brendan Sileo, and Ethan Smith", 0dh, 0ah, 0
+	creditsMessage db "               By: Andrew Simmons, Brendan Sileo, and Ethan Smith", 0dh, 0ah, 0
 
 	space db " "
 	leftClick db "Left Click", 0
@@ -92,7 +92,7 @@ main proc
 			; Draw current board state
 			call Clrscr
 			call redrawBoard
-
+			call printBoardDebug
 			; Get mouse location and click type
 			call mouseLoc
 
@@ -103,6 +103,10 @@ main proc
 			jmp isLeftClick ; Otherwise, jump to isLeftClick
 
 			isLeftClick:
+				mov eax, 0
+				mov al, yCoord
+				mov ebx, 0
+				mov bl, xCoord
 				call handleLeftClick
 
 				; Check for a loss
@@ -307,28 +311,80 @@ clickEvent endp
 ; If you left click on an uncovered, flagged, or question marked location, do nothing
 handleLeftClick proc
 	pushad
-
+	cmp eax, 0
+	jl handleLeftClickDone
+	cmp eax, boardWidth
+	jge handleLeftClickDone
+	cmp ebx, 0
+	jl handleLeftClickDone
+	cmp ebx, boardWidth
+	jge handleLeftClickDone
+	;push eax
+	;mov eax, ebx
+	;call WriteInt
+	;pop eax
+	;call WriteInt
+	;call Crlf
 	mov esi, offset coverState
+	mov edi, offset baseState
 
-	mov eax, 0
-	mov al, yCoord
-	mov ebx, 0
-	mov bl, xCoord
+	push eax
+	push ebx
 	call xyToIndex
 
 	add esi, eax ; Move offset to location of click
-
-	mov eax, 0
-	mov al, [esi]
-	cmp al, 1 ; If cover state is not 1 (covered, no flag or question mark)
+	add edi, eax
+	pop ebx
+	pop eax
+	
+	mov edx, 0
+	mov dl, [esi]
+	cmp dl, 1 ; If cover state is not 1 (covered, no flag or question mark)
 	jne handleLeftClickDone ; Skip the following code
 
 	; If cover state is 1 (covered, no flag or question mark)
-	mov eax, 0
-	mov [esi], al ; Uncover spot
+	mov edx, 0
+	mov [esi], dl ; Uncover spot
 
+	cmp [edi], dl
+	jne handleLeftClickDone
+	; Top-Left Check
+	sub ebx, 1
+	sub eax, 1
+	call handleLeftClick
+
+	; Top Check
+	add ebx, 1
+	call handleLeftClick
+
+	; Top Right Check
+	add ebx, 1
+	call handleLeftClick
+
+	; Left Check
+	add eax, 1
+	sub ebx, 2
+	call handleLeftClick
+
+	; Right Check
+	add ebx, 2
+	call handleLeftClick
+
+	; Bottom Left Check
+	add eax, 1
+	sub ebx, 2
+	call handleLeftClick
+
+	; Bottom Check
+	add ebx, 1
+	call handleLeftClick
+
+	; Bottom Right Check
+	add ebx, 1
+	call handleLeftClick
+	
 	handleLeftClickDone:
-
+	
 	popad
 	ret
 handleLeftClick endp
