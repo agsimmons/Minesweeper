@@ -91,6 +91,7 @@ main proc
 			jne isRightClick
 			call handleLeftClick
 			call lossCheck
+			call WriteInt
 			mov gameState, al
 			mov dl, 1
 			cmp gameState, dl
@@ -687,10 +688,14 @@ lossCheck PROC
 	mov esi, offset baseState
 	add esi, eax
 	mov edx, 9
-	cmp [esi], edx
+	mov eax, 0
+	mov al, [esi]
+	cmp [esi], dl
+	jne didntLose
 	popad
 	mov eax, 1
 	jmp finishLossCheck
+didntLose:
 	popad
 	mov eax, 0
 
