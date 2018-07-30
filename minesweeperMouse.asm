@@ -82,7 +82,9 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 
 .code
 main proc
+
 	call Randomize
+
 	call welcomeMenu
 
 	outerGameLoop:
@@ -120,15 +122,15 @@ main proc
 				; Check for a loss
 				call lossCheck
 				mov gameState, al
-				mov dl, 1
-				cmp gameState, dl ; If gameState is LOSS
+				mov al, 1
+				cmp gameState, al ; If gameState is LOSS
 				je handleLoss ; Jump to handleLoss
 
 				; Check for a win
 				call winCheck
 				mov gameState, al ; Move result from winCheck to gameState
-				mov dl, 2
-				cmp gameState, dl ; If gameState is WIN
+				mov al, 2
+				cmp gameState, al ; If gameState is WIN
 				je handleWin ; Jump to handleWin
 
 				jmp innerGameLoop
@@ -166,6 +168,7 @@ main proc
 				; If player DOES want to play again
 				call Clrscr
 				jmp outerGameLoop ; Restart game
+
 			quit:
 				invoke ExitProcess, 0
 
