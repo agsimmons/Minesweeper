@@ -431,9 +431,30 @@ generateMines proc
 	gen:
 		push eax
 		call RandomRange
+
+		;check if eax is in array
+		push ecx
+		push edi
+		check:
+			sub edi, 4
+			cmp eax, [edi]
+			je duplicate
+			loop check
+			jmp nodup
+
+		duplicate:
+			pop edi
+			pop ecx
+			inc ecx
+			inc ecx
+			jmp ex
+
+	nodup:	pop edi
+		pop ecx
+
 		mov [edi], eax
 		add edi, 4
-		pop eax
+	ex:	pop eax
 		loop gen
 
 	pop edx
