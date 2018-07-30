@@ -27,7 +27,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	xCoord db ?
 	yCoord db ?
 
-	gameState db 0 ;0 ongoing, 1 loss, 2 win
+	gameState db ? ;0 ongoing, 1 loss, 2 win
 
 	; Width of game board
 	boardWidth dd ?
@@ -45,7 +45,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	;     0: Empty
 	;     1-8: # of adjacent mines
 	;     9: Mine
-	baseState db 400 DUP(0)
+	baseState db 400 DUP(?)
 
 	; Cover state array
 	; Possible values:
@@ -53,14 +53,14 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	;     1: Covered
 	;     2: Covered, Flagged
 	;     3: Covered, Question Mark
-	coverState db 400 DUP(1)
+	coverState db 400 DUP(?)
 
 	; Mine location array
 	; Possible values:
 	;	0 to boardWidth^2
 	; Length:
 	;	numMines
-	mineLocations dd 41 DUP(0)
+	mineLocations dd 41 DUP(?)
 
 	; === Constants ============================================================
 	welcomeMenuLayout db "                  _____ _", 0dh, 0ah, \
@@ -82,6 +82,9 @@ main proc
 	call welcomeMenu
 
 	outerGameLoop:
+
+		; Reset variable values
+		call initialize
 
 		; Generate Board
 		call inputBoardWidth
@@ -157,6 +160,43 @@ main proc
 				invoke ExitProcess, 0
 
 main endp
+
+initialize proc
+	pushad
+
+	; Initialize values of baseState
+	mov esi, offset baseState
+	mov ecx, lengthof baseState
+	initializeBaseState:
+		mov al, 0
+		mov [esi], al
+		inc esi
+		loop initializeBaseState
+
+	; Initialize values of coverState
+	mov esi, offset coverState
+	mov ecx, lengthof coverState
+	initializeCoverState:
+		mov al, 1
+		mov [esi], al
+		inc esi
+		loop initializeCoverState
+
+	; Initialize values of mineLocations
+	mov esi, offset mineLocations
+	mov ecx, lengthof mineLocations
+	initializeMineLocations:
+		mov al, 0
+		mov [esi], al
+		inc esi
+		loop initializeMineLocations
+
+	; Initialize gameState
+	mov gameState, 0
+
+	popad
+	ret
+initialize endp
 
 uncoverAllMines proc
 	pushad
