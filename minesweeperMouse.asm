@@ -77,7 +77,6 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 
 .code
 main proc
-
 	call Randomize
 	call welcomeMenu
 	outer:
@@ -335,7 +334,7 @@ mouseLoc proc
 	pushad
 	invoke GetStdHandle, STD_INPUT_HANDLE
 	mov rHnd, eax
-	invoke SetConsoleMode, rHnd, ENABLE_LINE_INPUT OR ENABLE_MOUSE_INPUT OR ENABLE_EXTENDED_FLAGS
+	invoke SetConsoleMode, rHnd, ENABLE_MOUSE_INPUT OR ENABLE_EXTENDED_FLAGS
 	appContinue:
 		invoke GetNumberOfConsoleInputEvents, rHnd, OFFSET numEventsOccurred
 		cmp numEventsOccurred, 0
@@ -565,18 +564,16 @@ checkAdjacency endp
 ; 	2: no
 askPlayAgain proc
 	push edx
-
 	askPlayAgainQuestion:
 		mov edx, offset playAgainMessage
 		call WriteString
-
-		call ReadInt
-
+		
+		call ReadInt 
 		cmp eax, 1
 		je doneAskPlayAgain
 		cmp eax, 2
 		je doneAskPlayAgain
-
+		call Crlf
 		jmp askPlayAgainQuestion
 
 	doneAskPlayAgain:
