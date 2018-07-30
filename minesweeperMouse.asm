@@ -123,7 +123,6 @@ main proc
 
 main endp
 
-; TODO: Test this. I couldn't test it without the functionality to uncover the board
 redrawBoard proc
 	pushad ; Push register states
 
