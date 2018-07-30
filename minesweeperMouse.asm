@@ -272,6 +272,8 @@ clickEvent proc
 	ret
 clickEvent endp
 
+; If you left click on a covered location, uncover it
+; If you left click on an uncovered, flagged, or question marked location, do nothing
 handleLeftClick proc
 	pushad
 
