@@ -658,8 +658,8 @@ askPlayAgain proc
 	askPlayAgainQuestion:
 		mov edx, offset playAgainMessage
 		call WriteString
-		
-		call ReadInt 
+
+		call ReadInt
 		cmp eax, 1
 		je doneAskPlayAgain
 		cmp eax, 2
@@ -828,9 +828,9 @@ lossCheck PROC
 	popad
 	mov eax, 1
 	jmp finishLossCheck
-didntLose:
-	popad
-	mov eax, 0
+	didntLose:
+		popad
+		mov eax, 0
 
 	finishLossCheck:
 	ret
@@ -903,11 +903,11 @@ handleRightClick proc
 	one:
 		mov [edi], dl	;set square to one
 	ex:			;exit
-	pop edx
-	pop ecx
-	pop ebx
-	pop eax
-	ret
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		ret
 handleRightClick endp
 
 ;Inputs:
