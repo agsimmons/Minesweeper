@@ -295,6 +295,12 @@ redrawBoard proc
 	mov ebx, 0 ; innerRedrawLoopCounter
 
 	outerRedrawLoop:
+		; Change text color
+		push eax
+		mov eax, white + (black * 16)
+		call SetTextColor
+		pop eax
+
 		mov al, '|'
 		call WriteChar
 
@@ -313,12 +319,26 @@ redrawBoard proc
 		check2:
 			cmp al, 2
 			jne check3
+
+			; Change text color
+			push eax
+			mov eax, yellow + (black * 16)
+			call SetTextColor
+			pop eax
+
 			mov al, 'F'
 			jmp drawCover
 		check3:
+			; Change text color
+			push eax
+			mov eax, yellow + (black * 16)
+			call SetTextColor
+			pop eax
+
 			mov al, '?'
 		drawCover:
 			call WriteChar
+
 			jmp afterCharacter
 
 			uncoveredState:
@@ -332,19 +352,43 @@ redrawBoard proc
 				jmp drawAdjacency
 
 				drawSpace:
+					; Change text color
+					push eax
+					mov eax, white + (black * 16)
+					call SetTextColor
+					pop eax
+
 					mov al, ' '
 					call WriteChar
 					jmp afterCharacter
 				drawMine:
+					; Change text color
+					push eax
+					mov eax, lightRed + (black * 16)
+					call SetTextColor
+					pop eax
+
 					mov al, '*'
 					call WriteChar
 					jmp afterCharacter
 				drawAdjacency:
+					; Change text color
+					push eax
+					mov eax, lightGreen + (black * 16)
+					call SetTextColor
+					pop eax
+
 					add al, 48 ; Convert number to ascii character
 					call WriteChar
 					jmp afterCharacter
 
 			afterCharacter:
+				; Change text color
+				push eax
+				mov eax, white + (black * 16)
+				call SetTextColor
+				pop eax
+
 				mov al, '|'
 				call WriteChar
 
@@ -361,6 +405,12 @@ redrawBoard proc
 		inc ecx ; Increment outerRedrawLoopCounter
 		cmp ecx, boardWidth ; If outerRedrawLoopCounter != boardWidth
 		jne outerRedrawLoop ; Repeat outer loop
+
+	; Change text color
+	push eax
+	mov eax, white + (black * 16)
+	call SetTextColor
+	pop eax
 
 	popad ; Pop register states
 	ret
