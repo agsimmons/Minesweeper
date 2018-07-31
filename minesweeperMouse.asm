@@ -971,6 +971,8 @@ winCheck PROC
 		jmp afterWinCheckLoop ; Break from loop
 
 		endOfWinCheckLoop:
+			inc esi
+			inc edi
 
 		loop winCheckLoop
 
