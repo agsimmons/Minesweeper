@@ -78,10 +78,13 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 	leftClick db "Left Click", 0
 	rightClick db "Right Click", 0
 	loseMessage db "You Lose!", 0dh, 0ah, 0
+	winMessage db "You Win!", 0dh, 0ah, 0
 
 .code
 main proc
+
 	call Randomize
+
 	call welcomeMenu
 
 	outerGameLoop:
@@ -118,31 +121,31 @@ main proc
 				; Check for a loss
 				call lossCheck
 				mov gameState, al
-				mov dl, 1
-				cmp gameState, dl ; If gameState is LOSS
+				mov al, 1
+				cmp gameState, al ; If gameState is LOSS
 				je handleLoss ; Jump to handleLoss
 
 				; Check for a win
 				call winCheck
 				mov gameState, al ; Move result from winCheck to gameState
+				mov al, 2
+				cmp gameState, al ; If gameState is WIN
+				je handleWin ; Jump to handleWin
 
-				jmp afterClickHandling
+				jmp innerGameLoop
 
 			isRightClick:
 				call handleRightClick
 
-				jmp afterClickHandling
-
-			afterClickHandling:
-				mov dl, 2
-				cmp gameState, dl ; If gameState is WIN
-				je handleWin ; Jump to handleWin
-
-				; If gameState is ONGOING
 				jmp innerGameLoop
 
 			handleWin:
-				;print you win
+				call flagAllMines
+				call Clrscr
+				call redrawBoard
+
+				mov edx, offset winMessage
+				call WriteString
 
 				jmp playAgain
 
@@ -164,6 +167,7 @@ main proc
 				; If player DOES want to play again
 				call Clrscr
 				jmp outerGameLoop ; Restart game
+
 			quit:
 				invoke ExitProcess, 0
 
@@ -206,20 +210,56 @@ initialize proc
 	ret
 initialize endp
 
+flagAllMines proc
+	pushad
+
+	mov esi, offset baseState
+	mov edi, offset coverState
+
+	mov ecx, 0 ; outerFlagAllMinesLoopCount
+	mov ebx, 0 ; innerFlagAllMinesLoopCount
+
+	outerFlagAllMinesLoop:
+		mov ebx, 0 ; Reset innerFlagAllMinesLoopCount for each iteration of outer loop
+		innerFlagAllMinesLoop:
+			; Do work
+			mov al, [esi] ; Move base state value into al
+			cmp al, 9 ; If there is NOT a mine here
+			jne skipFlagAllMinesLoop
+			; If there IS a mine here
+			mov al, 2 ; Put FLAGGED value into al
+			mov [edi], al ; Set cover state to FLAGGED
+
+			skipFlagAllMinesLoop:
+
+			inc esi
+			inc edi
+			; End work
+
+			inc ebx ; Increment innerFlagAllMinesLoop
+			cmp ebx, boardWidth ; If innerFlagAllMinesLoop != boardWidth
+			jne innerFlagAllMinesLoop ; Repeat inner loop
+		inc ecx ; Increment outerFlagAllMinesLoopCount
+		cmp ecx, boardWidth ; If outerFlagAllMinesLoopCount != boardWidth
+		jne outerFlagAllMinesLoop ; Repeat outer loop
+
+	popad
+	ret
+flagAllMines endp
+
 uncoverAllMines proc
 	pushad
 
 	mov esi, offset baseState
 	mov edi, offset coverState
 
-	mov ecx, 0 ; outerRedrawLoopCounter
-	mov ebx, 0 ; innerRedrawLoopCounter
+	mov ecx, 0 ; innerUncoverAllMinesLoopCount
+	mov ebx, 0 ; innerUncoverAllMinesLoopCount
 
-	outerUncoverAllMinesLoop:
+	outerFlagAllMinesLoop:
 		mov ebx, 0 ; Reset innerUncoverAllMinesLoopCount for each iteration of outer loop
 		innerUncoverAllMinesLoop:
 			; Do work
-
 			mov al, [esi] ; Move base state value into al
 			cmp al, 9 ; If there is NOT a mine here
 			jne skipUncoverAllMinesLoop
@@ -236,12 +276,9 @@ uncoverAllMines proc
 			inc ebx ; Increment innerUncoverAllMinesLoop
 			cmp ebx, boardWidth ; If innerUncoverAllMinesLoop != boardWidth
 			jne innerUncoverAllMinesLoop ; Repeat inner loop
-		; <Post Outer Loop>
-		call Crlf ; Move cursor to new line
-		; </Post Outer Loop>
 		inc ecx ; Increment outerUncoverAllMinesLoopCounter
 		cmp ecx, boardWidth ; If outerUncoverAllMinesLoopCounter != boardWidth
-		jne outerUncoverAllMinesLoop ; Repeat outer loop
+		jne outerFlagAllMinesLoop ; Repeat outer loop
 
 	popad
 	ret
@@ -257,6 +294,12 @@ redrawBoard proc
 	mov ebx, 0 ; innerRedrawLoopCounter
 
 	outerRedrawLoop:
+		; Change text color
+		push eax
+		mov eax, white + (black * 16)
+		call SetTextColor
+		pop eax
+
 		mov al, '|'
 		call WriteChar
 
@@ -275,12 +318,26 @@ redrawBoard proc
 		check2:
 			cmp al, 2
 			jne check3
+
+			; Change text color
+			push eax
+			mov eax, yellow + (black * 16)
+			call SetTextColor
+			pop eax
+
 			mov al, 'F'
 			jmp drawCover
 		check3:
+			; Change text color
+			push eax
+			mov eax, yellow + (black * 16)
+			call SetTextColor
+			pop eax
+
 			mov al, '?'
 		drawCover:
 			call WriteChar
+
 			jmp afterCharacter
 
 			uncoveredState:
@@ -294,19 +351,43 @@ redrawBoard proc
 				jmp drawAdjacency
 
 				drawSpace:
+					; Change text color
+					push eax
+					mov eax, white + (black * 16)
+					call SetTextColor
+					pop eax
+
 					mov al, ' '
 					call WriteChar
 					jmp afterCharacter
 				drawMine:
+					; Change text color
+					push eax
+					mov eax, lightRed + (black * 16)
+					call SetTextColor
+					pop eax
+
 					mov al, '*'
 					call WriteChar
 					jmp afterCharacter
 				drawAdjacency:
+					; Change text color
+					push eax
+					mov eax, lightGreen + (black * 16)
+					call SetTextColor
+					pop eax
+
 					add al, 48 ; Convert number to ascii character
 					call WriteChar
 					jmp afterCharacter
 
 			afterCharacter:
+				; Change text color
+				push eax
+				mov eax, white + (black * 16)
+				call SetTextColor
+				pop eax
+
 				mov al, '|'
 				call WriteChar
 
@@ -323,6 +404,12 @@ redrawBoard proc
 		inc ecx ; Increment outerRedrawLoopCounter
 		cmp ecx, boardWidth ; If outerRedrawLoopCounter != boardWidth
 		jne outerRedrawLoop ; Repeat outer loop
+
+	; Change text color
+	push eax
+	mov eax, white + (black * 16)
+	call SetTextColor
+	pop eax
 
 	popad ; Pop register states
 	ret
@@ -381,7 +468,7 @@ handleLeftClick proc
 	add edi, eax
 	pop ebx
 	pop eax
-	
+
 	mov edx, 0
 	mov dl, [esi]
 	cmp dl, 1 ; If cover state is not 1 (covered, no flag or question mark)
@@ -427,9 +514,9 @@ handleLeftClick proc
 	; Bottom Right Check
 	add ebx, 1
 	call handleLeftClick
-	
+
 	handleLeftClickDone:
-	
+
 	popad
 	ret
 handleLeftClick endp
@@ -910,31 +997,47 @@ lossCheck ENDP
 ;Outputs:
 ;	eax: 2 if win, 0 if not
 winCheck PROC
-	pushad
+	push esi
+	push edi
+	push ebx
+	push ecx
+
 	mov esi, offset baseState
 	mov edi, offset coverState
+
 	mov eax, boardWidth
 	mul eax
 	mov ecx, eax
-	loopThrough:
-		mov edx, 9
-		cmp [esi], edx
-		je ignore ;ignore if it's a mine
-		mov edx, 0
-		cmp [edi], edx
-		jne noWin ;if a nonmine is covered you have not won
-	ignore:
-		inc esi
-		inc edi
-		loop loopThrough
-		popad
-		mov eax, 2
-		jmp finishWinCheck
-	noWin:
-		popad
-		mov eax, 0
-	finishWinCheck:
-		ret
+
+	mov eax, 2 ; Set default return value to WIN
+
+	winCheckLoop:
+		mov bl, [esi] ; Move baseState value into bl
+		cmp bl, 9 ; If it is a mine
+		je endOfWinCheckLoop ; Jump to endOfWinCheckLoop
+
+		; If it is not a mine
+		mov bl, [edi] ; Move coverState value into bl
+		cmp bl, 0 ; If it is uncovered
+		je endOfWinCheckLoop ; Jump to endOfWinCheckLoop
+
+		; If if it covered
+		mov eax, 0 ; Set return value to ONGOING
+		jmp afterWinCheckLoop ; Break from loop
+
+		endOfWinCheckLoop:
+			inc esi
+			inc edi
+
+		loop winCheckLoop
+
+	afterWinCheckLoop:
+
+	pop ecx
+	pop ebx
+	pop edi
+	pop esi
+	ret
 winCheck ENDP
 
 ; Inputs:
@@ -944,36 +1047,45 @@ winCheck ENDP
 ; Outputs:
 ;	coverState
 handleRightClick proc
-	push eax
-	push ebx
-	push ecx
-	push edx
+	pushad
 
-	mov edi, offset coverState
 	mov eax, 0
 	mov al, yCoord
 	mov ebx, 0
 	mov bl, xCoord
-	call xyToIndex		;generate offset
+	call xyToIndex
 
-	mov ecx, 3		;3 for compare
-	mov edx, 1		;1 for increment
+	mov esi, offset coverState
+	add esi, eax
 
-	add edi, eax		;load location of square
+	mov al, [esi]
+	cmp al, 1 ; If cover state is COVERED
+	je handleRightClickCovered ; Jump to handleRightClickCovered
+	cmp al, 2 ; If cover state is FLAGGED
+	je handleRightClickFlagged ; Jump to handleRightClickFlagged
+	cmp al, 3 ; If cover state is QUESTIONMARKED
+	je handleRightClickQuestionMarked ; Jump to handleRightClickQuestionMarked
 
-	cmp [edi], cl		;compare to 3 (1 covered, 2 mine-flag, 3 question mark)
-	jge one			;if square >= 3, set as one (covered)
-	mov al, [edi]
-	add [edi], edx		;else increment square
-	jmp ex			;exit
+	; Else, if cover state is UNCOVERED
+	jmp afterHandleRightClick ; Jump to afterHandleRightClick
 
-	one:
-		mov [edi], dl	;set square to one
-	ex:			;exit
-		pop edx
-		pop ecx
-		pop ebx
-		pop eax
+	handleRightClickCovered:
+		mov al, 2
+		mov [esi], al
+		jmp afterHandleRightClick
+
+	handleRightClickFlagged:
+		mov al, 3
+		mov [esi], al
+		jmp afterHandleRightClick
+
+	handleRightClickQuestionMarked:
+		mov al, 1
+		mov [esi], al
+		jmp afterHandleRightClick
+
+	afterHandleRightClick:
+		popad
 		ret
 handleRightClick endp
 
