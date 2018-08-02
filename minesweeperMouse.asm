@@ -99,7 +99,6 @@ main proc
 			; Draw current board state
 			call Clrscr
 			call redrawBoard
-			call printBoardDebug
 			; Get mouse location and click type
 			call mouseLoc
 
@@ -881,9 +880,15 @@ lossCheck PROC
 	mov bl, xCoord
 	call xyToIndex
 	mov esi, offset baseState
+	mov edi, offset coverState
 	add esi, eax
+	add edi, eax
 	mov edx, 9
 	mov eax, 0
+	mov ebx, [edi]
+	cmp bl, al
+	jne didntLose
+	
 	mov al, [esi]
 	cmp [esi], dl
 	jne didntLose
